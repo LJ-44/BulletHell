@@ -7,10 +7,10 @@ import sprites as sprt
 def main():
     # constants
     FPS = 60
-    BULLET_SPAWN_RATE = 10 # bullets spawning per second
+    BULLET_SPAWN_RATE = 10 # per second
     BULLET_SPAWN_RATE = floor(FPS / BULLET_SPAWN_RATE)
     
-    # pygame initialization stuff
+    # display
     pygame.init()
     resolution = (1280, 720)
     screen = pygame.display.set_mode(size=resolution)
@@ -18,16 +18,17 @@ def main():
     clock = pygame.time.Clock()
     running = True
 
-    # instantiating sprites / sprite groups
+    # sprites
     player_group = pygame.sprite.Group()
     bullets_group = pygame.sprite.Group()
     player = sprt.Player()
     player_group.add(player)
 
-    # counters / flags
+    # variables
     bullet_spawn_timer = 0
     hits = 0
 
+    running = True
     while running:
 
         # Exit pygame if user clicks X on game window
