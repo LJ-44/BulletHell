@@ -43,26 +43,75 @@ class Player(GameObject):
         if (self.rect.bottom > self.screen_height): self.rect.bottom = self.screen_height
 
 class Bullet(GameObject):
-    def __init__(self):
+    def __init__(self, left: bool = False, right: bool = True, top: bool = False, bottom: bool = False):
         # base class constructor
         super().__init__(color="red", width=5.0, height=5.0, speed=2)
 
         # collision detection
         self.hit = False
-
-        # bullet placed at random point outside the bounds on right-side edge of screen
-        self.rect.left = self.screen_width
-        self.rect.centery = random.randint((math.floor(self.rect.height / 2)), (self.screen_height - math.floor(self.rect.height / 2)))
+        
+        # 
+        self.edges = []
+        if left: self.edges.append('left')
+        if right: self.edges.append('right')
+        if top: self.edges.append('top')
+        if bottom: self.edges.append('bottom')
+        
+        self.spawn_edge = random.choice(self.edges)
+        
+        if self.spawn_edge == 'left':
+            self.dx, self.dy = self.speed, 0
+            self.rect.left = 0
+            self.rect.centery = random.randint(
+                (math.floor(self.rect.height / 2)), 
+                (self.screen_height - math.floor(self.rect.height / 2))
+            )
+            
+        elif self.spawn_edge == 'right':
+            self.dx, self.dy = -self.speed, 0
+            self.rect.right = self.screen_width
+            self.rect.centery = random.randint(
+                (math.floor(self.rect.height / 2)), 
+                (self.screen_height - math.floor(self.rect.height / 2))
+            )
+            
+        elif self.spawn_edge == 'top':
+            self.dx, self.dy = 0, self.speed
+            self.rect.top = 0
+            self.rect.centerx = random.randint(
+                (math.floor(self.rect.width / 2)), 
+                (self.screen_width - math.floor(self.rect.width / 2))
+            )
+            
+        elif self.spawn_edge == 'bottom':
+            self.dx, self.dy = 0, -self.speed
+            self.rect.bottom = self.screen_height
+            self.rect.centerx = random.randint(
+                (math.floor(self.rect.width / 2)), 
+                (self.screen_width - math.floor(self.rect.width / 2))
+            )
 
     def update(self):
         
-        #TODO: make bullet travel left from spawn point, if left edge of screen is hit, call self.kill() to remove from memory 
-
-        self.rect.centerx -= self.speed
-
-        if self.rect.left < 0:
-            self.kill()
+        # move bullet in desired x/y direction
+        self.rect.centerx += self.dx
+        self.rect.centery += self.dy
+        
+        # erase object if it goes out of bounds
+        if (self.rect.left < 0 or 
+            self.rect.right > self.screen_width or
+            self.rect.top < 0 or
+            self.rect.bottom > self.screen_height): self.kill()
+        
         ...
+        
+# class BulletY(GameObject):
+#     def __init__(self):
+#         super().__init__(self, color='red', width=5.0, height=5.0, speed=2)
+        
+#         self.hit = False
+        
+#         ...
 
 # class HomingBullet(GameObject):
 #     def __init__(self):
