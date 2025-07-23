@@ -1,5 +1,5 @@
 import pygame
-import math
+from math import floor
 import sprites as sprt
 
 #TODO: Make this into a bullet hell type game
@@ -7,8 +7,8 @@ import sprites as sprt
 def main():
     # constants
     FPS = 60
-    BULLET_SPAWN_RATE = 25 # bullets spawning per second
-    BULLET_SPAWN_RATE = math.floor(FPS / BULLET_SPAWN_RATE)
+    BULLET_SPAWN_RATE = 10 # bullets spawning per second
+    BULLET_SPAWN_RATE = floor(FPS / BULLET_SPAWN_RATE)
     
     # pygame initialization stuff
     pygame.init()
@@ -30,6 +30,7 @@ def main():
 
     while running:
 
+        # Exit pygame if user clicks X on game window
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -38,7 +39,8 @@ def main():
         bullet_spawn_timer += 1
         if bullet_spawn_timer == BULLET_SPAWN_RATE:
             normal_bullet = sprt.Bullet(left=True, right=True, top=True, bottom=True)
-            bullets_group.add(normal_bullet)
+            homing_bullet = sprt.HomingBullet(target=player)
+            bullets_group.add(normal_bullet, homing_bullet)
             bullet_spawn_timer = 0
 
         player_group.update()
