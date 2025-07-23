@@ -1,0 +1,30 @@
+Bullet Hell:
+
+similar experience to terraria supreme calamitas fight. 
+
+Small Manageable Tasks for today:
+- get 2 or more enemies spawned on edge in random positions each time
+
+
+Stuff to implement (eventually): 
+
+regular bullets:
+- appear offscreen
+- strictly horizontal / vertical movement
+	- horizontal appear on left or right edges
+	- vertical appear on top or bottom edges
+- erased when hitting opposite edge of spawn edge
+
+homing bullets:
+- appear offscreen, all 4 edges
+- erased when hitting edge of screen
+
+homing explosives
+- think of supreme calamitas fight
+- those things that explode and send shrapnel in all directions
+- might have to make screen bigger - a lot of bullets
+
+score:
+-time survived.
+-save high scores in a file, write to txt file maybe?
+-
