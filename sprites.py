@@ -3,7 +3,7 @@ from math import floor
 import random
 
 class GameObject(pygame.sprite.Sprite):
-    def __init__(self, color: str, width: float, height: float, speed: int):
+    def __init__(self, color: str, width: float, height: float, speed: int | float):
         pygame.sprite.Sprite.__init__(self)
 
         self.screen = pygame.display.get_surface()
@@ -104,9 +104,12 @@ class Bullet(GameObject):
 class HomingBullet(GameObject):
     def __init__(self, target: GameObject):
         # base class constructor
-        super().__init__(color="blue", width=7.0, height=7.0, speed=3)
+        super().__init__(color="blue", width=9.0, height=9.0, speed=0.1)
 
+        # collision detection
         self.hit = False
+
+        self.target = target
 
         self.edges = ["left", "right", "top", "bottom"]
         self.spawn_edge = random.choice(self.edges)
@@ -136,19 +139,52 @@ class HomingBullet(GameObject):
                 (floor(self.rect.width / 2)), 
                 (self.screen_width - floor(self.rect.width / 2))
             )
+
+        self.bullet_position = pygame.Vector2(self.rect.center)
+        self.velocity = (pygame.Vector2(self.target.rect.center) - self.bullet_position).normalize()
+        self.passed_player = False
             
     # easy tracking
     def update(self):
 
-        
+        # TODO FIX ALL OF THIS!!!!!!!!
+
+        # update vector pointing from bullet -> target
+        self.bullet_to_target_vector = pygame.Vector2(self.target.rect.center) - self.rect.center
+
+        # update bullet velocity vector using linear interpolation of velocity & to_target vectors
+        self.steer_strength = 0.0001
+        self.velocity = self.velocity.lerp(self.bullet_to_target_vector, self.steer_strength)
+
+        if self.passed_player == False:
+            if self.bullet_to_target_vector.length() != 0:
+                self.bullet_to_target_vector.normalize()
+
+            if self.velocity.length() != 0:
+                self.velocity.normalize() * self.speed
+
+            # check if dot product is negative (angle between vectors > 90 degrees)
+            if self.velocity.dot(self.bullet_to_target_vector) < 0:
+                self.passed_player = True
+                self.velocity_after_pass = self.velocity
+
+            # update bullet trajectory using velocity vector
+            self.bullet_position += self.velocity
+            self.rect.center = (int(self.bullet_position.x), int(self.bullet_position.y))
+
+        else:
+            self.bullet_position += self.velocity_after_pass
+            self.rect.center = (int(self.bullet_position.x), int(self.bullet_position.y))
+
+        # erase object if it goes out of bounds
+        if (self.rect.left < 0 or 
+            self.rect.right > self.screen_width or
+            self.rect.top < 0 or
+            self.rect.bottom > self.screen_height): self.kill()
 
 
 
-        ...
-    # constant tracking
-    def update(self):
 
-        ...
 
 # class ExplodingBullet(GameObject):
 #     def __init__(self):

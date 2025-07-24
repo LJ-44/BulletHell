@@ -7,7 +7,7 @@ import sprites as sprt
 def main():
     # constants
     FPS = 60
-    BULLET_SPAWN_RATE = 10 # per second
+    BULLET_SPAWN_RATE = 1 # per second
     BULLET_SPAWN_RATE = floor(FPS / BULLET_SPAWN_RATE)
     
     # display
@@ -44,6 +44,7 @@ def main():
             bullets_group.add(normal_bullet, homing_bullet)
             bullet_spawn_timer = 0
 
+        # update sprite positions
         player_group.update()
         bullets_group.update()
 
