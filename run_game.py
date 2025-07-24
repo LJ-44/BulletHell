@@ -2,7 +2,37 @@ import pygame
 from math import floor
 import sprites as sprt
 
-#TODO: Make this into a bullet hell type game
+#TODO
+# right now:
+# ( ) homing bullet
+    # ( ) easy version - fire towards player's center position when spawned
+    # ( ) hard version - fire towards player continually tracking player's position
+# ( ) exploding bullet
+    # ( ) get bullet to explode into shrapnel, shrapnel-player collision
+    # ( ) fire towards player, explode when near player
+# ( ) lives counter
+# ( ) death system
+# later:
+# ( ) title screen
+    # ( ) singleplayer mode 
+    # ( ) 2 player mode
+        # players choose their own color
+        # whoever dies (or runs out of lives) first loses
+    # ( ) difficulties
+        # easy - left/right walls only, low spawn rate
+        # medium - left/right/top walls, medium spawn rate
+        # hard - all edges, high spawn rate
+        # insane - all edges, very high spawn rate
+        # hell - all edges, extremely high spawn rate
+# ( ) high score
+    # save score into file by read/write (text file?)
+    # score = seconds survived * 10 
+# ( ) death system
+    # game over screen
+    # 
+# ( ) sound effects - 8 bit
+# ( ) music - 8 bit (MANLORETTE PARTY - ADVENTURE TIME)
+#TODO
 
 def main():
     # constants
