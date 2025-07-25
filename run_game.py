@@ -1,5 +1,6 @@
 import pygame
-from math import floor
+import math
+from menu import *
 import sprites as sprt
 
 #TODO
@@ -37,16 +38,19 @@ import sprites as sprt
 def main():
     # constants
     FPS = 60
-    BULLET_SPAWN_RATE = 1 # per second
-    BULLET_SPAWN_RATE = floor(FPS / BULLET_SPAWN_RATE)
+    BULLET_SPAWN_RATE = 10 # per second
+    BULLET_SPAWN_RATE = math.floor(FPS / BULLET_SPAWN_RATE)
     
     # display
     pygame.init()
-    resolution = (1280, 720)
+    resolution = (800, 600)
     screen = pygame.display.set_mode(size=resolution)
     pygame.display.set_caption("Bullet Hell")
     clock = pygame.time.Clock()
     running = True
+    
+    # states
+    main_menu = MainMenu()
 
     # sprites
     player_group = pygame.sprite.Group()
@@ -55,44 +59,126 @@ def main():
     player_group.add(player)
 
     # variables
-    bullet_spawn_timer = 0
+    frame_count = 0
+    count = 0
     hits = 0
+    
+    # initial states
+    game_state = GameState.MAIN_MENU
+    player_mode = None
+    difficulty = None
 
     running = True
     while running:
+        
+        # --------------------
+        # Handle events first
+        # --------------------
 
-        # Exit pygame if user clicks X on game window
+        mouse_up = False
+        mouse_pos = pygame.mouse.get_pos()
+        
+        # Exit if user clicks X on window
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
-        # spawn bullets based on chosen spawn rate
-        bullet_spawn_timer += 1
-        if bullet_spawn_timer == BULLET_SPAWN_RATE:
-            normal_bullet = sprt.Bullet(left=True, right=True, top=True, bottom=True)
-            homing_bullet = sprt.HomingBullet(target=player)
-            bullets_group.add(normal_bullet, homing_bullet)
-            bullet_spawn_timer = 0
-
-        # update sprite positions
-        player_group.update()
-        bullets_group.update()
-
-        # Counts number of times a unique bullet hits the player
-        for bullet in bullets_group:
-            if (pygame.sprite.collide_rect(player, bullet) and not getattr(bullet, 'hit', False)):
-                hits += 1
-                bullet.hit = True
-                print(f'Hits: {hits}')
-
-        screen.fill('black')
+            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                mouse_up = True
         
-        player_group.draw(screen)
-        bullets_group.draw(screen)
+        # --------------------
+        # Update based on game state
+        # --------------------
+        
+        if game_state == GameState.MAIN_MENU:
+            # main menu buttons
+            if main_menu.singleplayer_button.update(mouse_pos, mouse_up) == GameState.GAMEPLAY:
+                game_state == GameState.GAMEPLAY
+                player_mode == PlayerState.ONE_PLAYER
+            elif main_menu.two_player_button.update(mouse_pos, mouse_up) == GameState.GAMEPLAY:
+                game_state == GameState.GAMEPLAY
+                player_mode == PlayerState.TWO_PLAYER
+            elif main_menu.settings_button.update(mouse_pos, mouse_up) == GameState.SETTINGS:
+                game_state == GameState.SETTINGS
+            elif main_menu.quit_button.update(mouse_pos, mouse_up) == GameState.QUIT:
+                game_state == GameState.QUIT
+            else:
+                pass
+               
+        elif game_state == GameState.GAMEPLAY:
+            # escape key pauses game
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_ESCAPE]:
+                game_state == GameState.PAUSED
+            
+            if player_mode == PlayerState.ONE_PLAYER:
+                ...
+            else: # two player
+                ...
+                
+            if difficulty == Difficulty.EASY:
+                ...
+            elif difficulty == Difficulty.MEDIUM:
+                ...
+            elif difficulty == Difficulty.HARD:
+                ...
+            elif difficulty == Difficulty.INSANE:
+                ...
+            elif difficulty == Difficulty.HELL:
+                ...
+        
+        elif game_state == GameState.PAUSED:
+            ...
+        elif game_state == GameState.SETTINGS:
+            ...
+        elif game_state == GameState.QUIT:
+            ...
+        
+        # --------------------
+        # Draw everything
+        # --------------------
+        
+        if game_state == GameState.MAIN_MENU:
+            for button in main_menu.buttons:
+                button.draw(screen)
+            ...
+        
+        elif game_state == GameState.GAMEPLAY:
+            player_group.draw(screen)
+            bullets_group.draw(screen)
+            ...
+
+            ...
 
         pygame.display.flip()
-
         clock.tick(FPS)
+                
+        # frame_count += 1
+
+        # # spawn bullets based on chosen spawn rate
+        # if frame_count % BULLET_SPAWN_RATE == 0:
+        #     normal_bullet = sprt.Bullet(left=True, right=True, top=True, bottom=True)
+        #     bullets_group.add(normal_bullet)
+            
+        # # spawn homing bullet every 5 seconds (300 frames)
+        # if frame_count % 300 == 0:
+        #     homing_bullet = sprt.HomingBullet(target=player)
+        #     bullets_group.add(homing_bullet)
+
+        # # update sprite positions
+        # player_group.update()
+        # bullets_group.update()
+
+        # # Counts number of times a unique bullet hits the player
+        # for bullet in bullets_group:
+        #     if (pygame.sprite.collide_rect(player, bullet) and not getattr(bullet, 'hit', False)):
+        #         hits += 1
+        #         bullet.hit = True
+        #         print(f'Hits: {hits}')
+
+        # screen.fill('black')
+        
+        # player_group.draw(screen)
+        # bullets_group.draw(screen)
 
     pygame.quit()
 
