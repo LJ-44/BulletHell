@@ -18,7 +18,7 @@ class UIElement(Sprite):
         
         default_image = create_surface_with_text(text, font_size, text_rgb, background_rgb)
         
-        highlighted_image = create_surface_with_text(text, font_size * 1.2, text_rgb, background_rgb)
+        highlighted_image = create_surface_with_text(text, font_size * 1.2, text_rgb=(200,0,0), background_rgb=background_rgb)
         
         self.images = [default_image, highlighted_image]
         self.rects = [

@@ -137,6 +137,10 @@ def main():
             ...
         elif game_state == GameState.SETTINGS:
             ...
+        elif game_state == GameState.QUIT:
+            pygame.quit()
+            return None
+            ...
         else:
             pass
         
@@ -150,6 +154,9 @@ def main():
             ...
         
         elif game_state == GameState.GAMEPLAY:
+
+            pygame.draw.circle(screen, 'green', (100, 100), 5.0)
+
             player_group.draw(screen)
             bullets_group.draw(screen)
             ...
@@ -160,34 +167,6 @@ def main():
 
         pygame.display.flip()
         clock.tick(FPS)
-                
-        # frame_count += 1
-
-        # # spawn bullets based on chosen spawn rate
-        # if frame_count % BULLET_SPAWN_RATE == 0:
-        #     normal_bullet = sprt.Bullet(left=True, right=True, top=True, bottom=True)
-        #     bullets_group.add(normal_bullet)
-            
-        # # spawn homing bullet every 5 seconds (300 frames)
-        # if frame_count % 300 == 0:
-        #     homing_bullet = sprt.HomingBullet(target=player)
-        #     bullets_group.add(homing_bullet)
-
-        # # update sprite positions
-        # player_group.update()
-        # bullets_group.update()
-
-        # # Counts number of times a unique bullet hits the player
-        # for bullet in bullets_group:
-        #     if (pygame.sprite.collide_rect(player, bullet) and not getattr(bullet, 'hit', False)):
-        #         hits += 1
-        #         bullet.hit = True
-        #         print(f'Hits: {hits}')
-
-        # screen.fill('black')
-        
-        # player_group.draw(screen)
-        # bullets_group.draw(screen)
 
     pygame.quit()
 
