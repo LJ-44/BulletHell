@@ -84,6 +84,8 @@ def main():
                 running = False
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 mouse_up = True
+                
+        screen.fill('black')
         
         # --------------------
         # Update based on game state
@@ -94,13 +96,17 @@ def main():
             if main_menu.singleplayer_button.update(mouse_pos, mouse_up) == GameState.GAMEPLAY:
                 game_state == GameState.GAMEPLAY
                 player_mode == PlayerState.ONE_PLAYER
+                
             elif main_menu.two_player_button.update(mouse_pos, mouse_up) == GameState.GAMEPLAY:
                 game_state == GameState.GAMEPLAY
                 player_mode == PlayerState.TWO_PLAYER
+                
             elif main_menu.settings_button.update(mouse_pos, mouse_up) == GameState.SETTINGS:
                 game_state == GameState.SETTINGS
+                
             elif main_menu.quit_button.update(mouse_pos, mouse_up) == GameState.QUIT:
                 game_state == GameState.QUIT
+                
             else:
                 pass
                
@@ -131,7 +137,11 @@ def main():
         elif game_state == GameState.SETTINGS:
             ...
         elif game_state == GameState.QUIT:
+            pygame.quit()
+            return None
             ...
+        else:
+            pass
         
         # --------------------
         # Draw everything
@@ -148,6 +158,8 @@ def main():
             ...
 
             ...
+        else:
+            pass
 
         pygame.display.flip()
         clock.tick(FPS)

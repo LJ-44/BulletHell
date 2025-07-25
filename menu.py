@@ -73,11 +73,11 @@ class MainMenu:
         self.screen_height = self.screen.get_height()
         self.screen_middle_x = self.screen_width / 2
         
-        self.title_card_position = (self.screen_middle_x, (self.screen_height / 10))
-        self.singleplayer_button_position = (self.screen_middle_x, (self.screen_height / 7))
-        self.two_player_button_position = (self.screen_middle_x, (self.screen_height / 6))
-        self.settings_button_position = (self.screen_middle_x, (self.screen_height / 5))
-        self.quit_button_position = (self.screen_middle_x, (self.screen_height / 4))
+        self.title_card_position = (self.screen_middle_x, (self.screen_height * (0.15)))
+        self.singleplayer_button_position = (self.screen_middle_x, (self.screen_height * (0.3)))
+        self.two_player_button_position = (self.screen_middle_x, (self.screen_height * (0.45)))
+        self.settings_button_position = (self.screen_middle_x, (self.screen_height * (0.6)))
+        self.quit_button_position = (self.screen_middle_x, (self.screen_height * (0.75)))
         
         self.title_card = UIElement(
             center_position=(self.title_card_position),
@@ -94,7 +94,7 @@ class MainMenu:
             background_rgb=(0,0,0),
             text_rgb=(255,0,0),
             text="Single Player",
-            action=GameState.ONE_PLAYER_MODE
+            action=GameState.GAMEPLAY
         )
 
         self.two_player_button = UIElement(
@@ -103,7 +103,7 @@ class MainMenu:
             background_rgb=(0,0,0),
             text_rgb=(255,0,0),
             text="Two Player",
-            action=GameState.TWO_PLAYER_MODE
+            action=GameState.GAMEPLAY
         )
         
         self.settings_button = UIElement(
@@ -118,12 +118,13 @@ class MainMenu:
         self.quit_button = UIElement(
             center_position=(self.quit_button_position),
             font_size=30,
-            background_rgb=(255,0,0),
-            text_rgb="Exit",
+            background_rgb=(0,0,0),
+            text_rgb=(255,0,0),
+            text="Exit",
             action=GameState.QUIT
         )
         
-        self.buttons = [self.singleplayer_button, self.two_player_button, self.settings_button, self.quit_button]
+        self.buttons = [self.title_card, self.singleplayer_button, self.two_player_button, self.settings_button, self.quit_button]
             
     
     
