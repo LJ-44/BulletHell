@@ -42,7 +42,7 @@ def main():
     
     # display
     pygame.init()
-    resolution = (800, 600)
+    resolution = (1920, 1080)
     screen = pygame.display.set_mode(size=resolution)
     pygame.display.set_caption("Bullet Hell")
     clock = pygame.time.Clock()
@@ -61,12 +61,13 @@ def main():
     player_group.add(player_one)
 
     # variables
-    bullet_spawn_rate = 2 # bullets per second
-    bullet_spawn_rate = math.floor(FPS / bullet_spawn_rate)
+    normal_bullet_spawn_rate = 4 # bullets per second
+    homing_bullet_spawn_rate = 1
+    exploding_bullet_spawn_rate = 1
     lives = 3
     frame_count = 0
-    count = 0
-    hits = 0
+    player_one_hits = 0
+    player_two_hits = 0
     
     # initial states
     game_state = GameState.MAIN_MENU
@@ -146,40 +147,90 @@ def main():
         elif game_state == GameState.GAMEPLAY:
             
             if difficulty == Difficulty.EASY:
-                bullet_spawn_rate = 2
+                normal_bullet_spawn_rate = 4
+                homing_bullet_spawn_rate = 1
+                exploding_bullet_spawn_rate = 1
                 ...
             elif difficulty == Difficulty.MEDIUM:
-                bullet_spawn_rate = 4
+                normal_bullet_spawn_rate = 7
+                homing_bullet_spawn_rate = 1
+                exploding_bullet_spawn_rate = 1
                 ...
             elif difficulty == Difficulty.HARD:
-                bullet_spawn_rate = 7
+                normal_bullet_spawn_rate = 10
+                homing_bullet_spawn_rate = 1
+                exploding_bullet_spawn_rate = 1
                 ...
             elif difficulty == Difficulty.INSANE:
-                bullet_spawn_rate = 10
+                normal_bullet_spawn_rate = 15
+                homing_bullet_spawn_rate = 1
+                exploding_bullet_spawn_rate = 1
                 ...
             elif difficulty == Difficulty.HELL:
-                bullet_spawn_rate = 15
+                normal_bullet_spawn_rate = 20
+                homing_bullet_spawn_rate = 1
+                exploding_bullet_spawn_rate = 1
                 ...
                 
             # escape key pauses game
             if player_mode == PlayerMode.ONE_PLAYER:
                 
-                if frame_count % bullet_spawn_rate == 0:
+                if frame_count % math.floor( FPS / normal_bullet_spawn_rate) == 0:
                     normal_bullet = sprt.Bullet(left=True, right=True, top=True, bottom=True)
                     bullets_group.add(normal_bullet)
-                    
+                
+                # if frame_count % math.floor( FPS / homing_bullet_spawn_rate) == 0:
+                #     homing_bullet = sprt.HomingBullet(target=player_one)
+                #     bullets_group.add(homing_bullet)
+                
+                # if frame_count % math.floor( FPS / exploding_bullet_spawn_rate) == 0:
+                #     exploding_bullet = sprt.ExplodingBullet(target=player_one)
+                #     bullets_group.add(exploding_bullet)
+                
                 player_group.update()
                 bullets_group.update()
                 
                 for bullet in bullets_group:
-                    if (pygame.sprite.collide_rect(player_one, bullet) and not getattr(bullet, 'hit', False)):
-                        hits += 1
-                        bullet.hit = True
-                        print(f'Hits: {hits}')
+                    if (pygame.sprite.collide_rect(player_one, bullet) and not getattr(bullet, 'hit_player_one', False)):
+                        player_one_hits += 1
+                        bullet.hit_player_one = True
+                        print(f'Player One Hits: {player_one_hits}')
                 
                 
                 ...
             elif player_mode == PlayerMode.TWO_PLAYER:
+                
+                player_group.add(player_two)
+                
+                # spawn bullets using its spawn rate
+                if frame_count % math.floor( FPS / normal_bullet_spawn_rate) == 0:
+                    normal_bullet = sprt.Bullet(left=True, right=True, top=True, bottom=True)
+                    bullets_group.add(normal_bullet)
+                    
+                    
+                # TODO: fix below
+                # if frame_count % math.floor( FPS / homing_bullet_spawn_rate) == 0:
+                #     homing_bullet = sprt.HomingBullet(target=player_one)
+                #     bullets_group.add(homing_bullet)
+                
+                # if frame_count % math.floor( FPS / exploding_bullet_spawn_rate) == 0:
+                #     exploding_bullet = sprt.ExplodingBullet(target=player_one)
+                #     bullets_group.add(exploding_bullet)
+                
+                for bullet in bullets_group:
+                    
+                    if (pygame.sprite.collide_rect(player_one, bullet) and not getattr(bullet, 'hit_player_one', False)):
+                        player_one_hits += 1
+                        bullet.hit_player_one = True
+                        print(f'Player One Hits: {player_one_hits}')
+                    
+                    elif (pygame.sprite.collide_rect(player_two, bullet) and not getattr(bullet, 'hit_player_two', False)):
+                        player_two_hits += 1
+                        bullet.hit_player_two = True
+                        print(f'Player Two Hits: {player_one_hits}')
+                    
+                player_group.update()
+                bullets_group.update()
                 
                 
                 ...
@@ -237,11 +288,6 @@ def main():
 
         pygame.display.flip()
         clock.tick(FPS)
-        
-        if frame_count % 60 == 0:
-            print(game_state)
-            print(player_mode)
-            print(difficulty)
 
     pygame.quit()
     sys.exit()

@@ -2,6 +2,7 @@ import pygame
 from pygame.sprite import Sprite
 import math
 import random
+from menu import *
 
 class GameObject(Sprite):
     def __init__(self, color: str, width: float, height: float, speed: int | float):
@@ -24,7 +25,8 @@ class Player(GameObject):
     def __init__(self):
         # base class constructor
         super().__init__(color="green", width=10.0, height=10.0, speed=3)
-
+        
+        
         # player spawn: center of screen
         self.rect.centerx = self.screen_width / 2
         self.rect.centery = self.screen_height / 2
@@ -32,6 +34,7 @@ class Player(GameObject):
     def update(self):
         # W,A,S,D or Arrow keys to move player
         keys = pygame.key.get_pressed()
+
         if keys[pygame.K_w] or keys[pygame.K_UP]: self.rect.centery -= self.speed
         if keys[pygame.K_a] or keys[pygame.K_LEFT]: self.rect.centerx -= self.speed
         if keys[pygame.K_s] or keys[pygame.K_DOWN]: self.rect.centery += self.speed
@@ -49,7 +52,8 @@ class Bullet(GameObject):
         super().__init__(color="red", width=5.0, height=5.0, speed=2)
 
         # collision detection
-        self.hit = False
+        self.hit_player_one = False
+        self.hit_player_two = False
         
         # store desired screen edges (chosen randomly for spawning)
         self.edges = []
@@ -108,7 +112,8 @@ class HomingBullet(GameObject):
         super().__init__(color="blue", width=9.0, height=9.0, speed=4)
 
         # collision detection
-        self.hit = False
+        self.hit_player_one = False
+        self.hit_player_two = False
 
         self.target = target
 
@@ -179,7 +184,7 @@ class HomingBullet(GameObject):
         self.rect.center = (int(self.bullet_position.x), int(self.bullet_position.y))
 
         # erase object if it goes out of bounds
-        if (self.rect.left < 0 or 
+        if (self.rect.left < 0 or
             self.rect.right > self.screen_width or
             self.rect.top < 0 or
             self.rect.bottom > self.screen_height): self.kill()
@@ -189,7 +194,8 @@ class ExplodingBullet(GameObject):
         super().__init__(color="orange", width=8.0, height=8.0, speed=3)
         
         # collision detection
-        self.hit = False
+        self.hit_player_one = False
+        self.hit_player_two = False
 
         self.target = target
 
