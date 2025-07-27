@@ -5,10 +5,9 @@ from pygame.rect import Rect
 from enum import Enum, auto
 
 def create_surface_with_text(text, font_size, text_rgb, background_rgb):
-    font = pygame.freetype.SysFont(name="Courier", size=font_size, bold=True)
+    font = pygame.freetype.SysFont(name="courier", size=font_size, bold=True)
     surface, _ = font.render(text=text, fgcolor=text_rgb, bgcolor=background_rgb)
     return surface.convert_alpha()
-
 class UIElement(Sprite):
     def __init__(self, center_position, text, font_size, background_rgb, text_rgb, action=None):
         
@@ -30,10 +29,12 @@ class UIElement(Sprite):
         
     @property
     def image(self):
+        # highlight element if mouse over
         return self.images[1] if self.mouse_over else self.images[0]
     
     @property
     def rect(self):
+        # highlight element if mouse over
         return self.rects[1] if self.mouse_over else self.rects[0]
     
     def update(self, mouse_position, mouse_up):
@@ -46,15 +47,39 @@ class UIElement(Sprite):
             
     def draw(self, surface: pygame.Surface):
         surface.blit(self.image, self.rect)
+        
+def build_ui_elements(screen: pygame.Surface, title_card: UIElement | None, ui_specs: list[dict[str, any]]):
+    
+    screen_height = screen.get_height()
+    screen_center_x = screen.get_width() / 2
+
+    elements = [title_card]
+    
+    top_button_y = screen_height * 0.35
+    ui_element_spacing = 30 # pixels
+    
+    for idx, specs in enumerate(ui_specs):
+            uielement_pos = (screen_center_x, top_button_y + (idx * ui_element_spacing))
+            
+            ui_element = UIElement(
+                center_position=uielement_pos,
+                font_size=30,
+                background_rgb=(0,0,0),
+                text_rgb=(255,0,0),
+                **specs
+            )
+            elements.append(ui_element)
+    return elements
             
 class GameState(Enum):
     MAIN_MENU = auto()
     GAMEPLAY = auto()
+    CHOOSE_DIFFICULTY = auto()
     SETTINGS = auto()
     PAUSED = auto()
     QUIT = auto()
 
-class PlayerState(Enum):
+class PlayerMode(Enum):
     ONE_PLAYER = auto()
     TWO_PLAYER = auto()
     
@@ -68,63 +93,112 @@ class Difficulty(Enum):
 class MainMenu:
     def __init__(self):
         
-        self.screen = pygame.display.get_surface()
-        self.screen_width = self.screen.get_width()
-        self.screen_height = self.screen.get_height()
-        self.screen_middle_x = self.screen_width / 2
-        
-        self.title_card_position = (self.screen_middle_x, (self.screen_height * (0.15)))
-        self.singleplayer_button_position = (self.screen_middle_x, (self.screen_height * (0.3)))
-        self.two_player_button_position = (self.screen_middle_x, (self.screen_height * (0.45)))
-        self.settings_button_position = (self.screen_middle_x, (self.screen_height * (0.6)))
-        self.quit_button_position = (self.screen_middle_x, (self.screen_height * (0.75)))
+        screen = pygame.display.get_surface()
+        screen_height = screen.get_height()
+        screen_center_x = screen.get_width() / 2
         
         self.title_card = UIElement(
-            center_position=(self.title_card_position),
-            font_size=30,
-            background_rgb=(0,0,0),
+            center_position=(screen_center_x, screen_height * 0.1),
+            text="BULLET HELL",
             text_rgb=(255,0,0),
-            text="Bullet Hell",
+            font_size=60,
+            background_rgb=(0,0,0),
             action=None
         )
         
-        self.singleplayer_button = UIElement(
-            center_position=(self.singleplayer_button_position),
-            font_size=30,
-            background_rgb=(0,0,0),
-            text_rgb=(255,0,0),
-            text="Single Player",
-            action=GameState.GAMEPLAY
-        )
-
-        self.two_player_button = UIElement(
-            center_position=(self.two_player_button_position),
-            font_size=30,
-            background_rgb=(0,0,0),
-            text_rgb=(255,0,0),
-            text="Two Player",
-            action=GameState.GAMEPLAY
-        )
-        
-        self.settings_button = UIElement(
-            center_position=(self.settings_button_position),
-            font_size=30,
-            background_rgb=(0,0,0),
-            text_rgb=(255,0,0),
-            text="Settings",
-            action=GameState.SETTINGS
-        )
-        
-        self.quit_button = UIElement(
-            center_position=(self.quit_button_position),
-            font_size=30,
-            background_rgb=(0,0,0),
-            text_rgb=(255,0,0),
-            text="Exit",
-            action=GameState.QUIT
-        )
-        
-        self.buttons = [self.title_card, self.singleplayer_button, self.two_player_button, self.settings_button, self.quit_button]
+        self.ui_elements = build_ui_elements(screen=screen, 
+                                             title_card=self.title_card, 
+                                             ui_specs=[
+            {
+                "text":"ONE PLAYER MODE",
+                "action": PlayerMode.ONE_PLAYER
+            },
+            {
+                "text":"TWO PLAYER MODE",
+                "action": PlayerMode.TWO_PLAYER
+            },
+            {
+                "text":"SETTINGS",
+                "action": GameState.SETTINGS
+            },
+            {
+                "text":"QUIT",
+                "action": GameState.QUIT
+            }
+                                             ])
             
-    
-    
+class PauseScreen:
+    def __init__(self):
+        
+        screen = pygame.display.get_surface()
+        screen_height = screen.get_height()
+        screen_center_x = screen.get_width() / 2
+        
+        self.paused_title = UIElement(
+            center_position=(screen_center_x, screen_height * 0.1),
+            text="GAME PAUSED",
+            text_rgb=(255,0,0),
+            font_size=50,
+            background_rgb=(0,0,0),
+            action=None
+        )
+        
+        self.ui_elements = build_ui_elements(screen=screen,
+                                             title_card=self.paused_title,
+                                             ui_specs=[
+                {
+                    "text":"CONTINUE",
+                    "action": GameState.GAMEPLAY
+                },
+                {
+                    "text":"MAIN MENU",
+                    "action": GameState.MAIN_MENU
+                },
+                {
+                    "text":"QUIT GAME",
+                    "action": GameState.QUIT
+                }
+                                             ])
+        
+class DifficultyScreen:
+    def __init__(self):
+        
+        screen = pygame.display.get_surface()
+        screen_height = screen.get_height()
+        screen_center_x = screen.get_width() / 2
+        
+        title_position = screen_height * 0.1
+        
+        self.title_card = UIElement(
+            center_position=(screen_center_x, title_position),
+            text="CHOOSE DIFFICULTY",
+            text_rgb=(255,0,0),
+            font_size=50,
+            background_rgb=(0,0,0),
+            action=None
+        )
+        
+        self.ui_elements = build_ui_elements(screen=screen,
+                                        title_card=self.title_card,
+                                        ui_specs=[
+                {
+                    "text":"EASY",
+                    "action": Difficulty.EASY
+                },
+                {
+                    "text":"MEDIUM",
+                    "action": Difficulty.MEDIUM
+                },
+                {
+                    "text":"HARD",
+                    "action": Difficulty.HARD
+                },
+                {
+                    "text":"INSANE",
+                    "action": Difficulty.INSANE
+                },
+                {
+                    "text":"HELL",
+                    "action": Difficulty.HELL
+                }
+                                        ])

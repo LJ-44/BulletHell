@@ -183,11 +183,55 @@ class HomingBullet(GameObject):
             self.rect.right > self.screen_width or
             self.rect.top < 0 or
             self.rect.bottom > self.screen_height): self.kill()
+class ExplodingBullet(GameObject):
+    def __init__(self, target: GameObject):
+        # base class constructor
+        super().__init__(color="orange", width=8.0, height=8.0, speed=3)
+        
+        # collision detection
+        self.hit = False
 
-# class ExplodingBullet(GameObject):
-#     def __init__(self):
-#         # base class constructor
-#         super().__init__(color="orange", width=8.0, height=8.0, speed=3)
+        self.target = target
 
-#     def update(self): pass
-#     ...
+        edges = ["left", "right", "top", "bottom"]
+        spawn_edge = random.choice(edges)
+
+        # spawn homing bullet on random edge of screen
+        if spawn_edge == "left":
+            self.rect.left = 0
+            self.rect.centery = random.randint(0, self.screen_height)
+        elif spawn_edge == "right":
+            self.rect.right = self.screen_width
+            self.rect.centery = random.randint(0, self.screen_height)
+        elif spawn_edge == "top":
+            self.rect.top = 0
+            self.rect.centerx = random.randint(0, self.screen_width)
+        elif spawn_edge == "bottom":
+            self.rect.bottom = self.screen_height
+            self.rect.centerx = random.randint(0, self.screen_width)
+        
+        self.bullet_position = pygame.Vector2(self.rect.center)
+        
+        # angle towards target
+        to_target = pygame.Vector2(self.target.rect.center) - self.bullet_position
+        self.angle = math.degrees(math.atan2(to_target.y, to_target.x))
+        
+        # track if bullet missed the player
+        self.delta_angle = 0.0
+        self.explode_bullet = False
+        
+        # bullet steering
+        self.turn_rate = 1.0 # degrees per frame
+        
+
+    def update(self):
+        
+        
+        
+        
+        
+        # erase object if it goes out of bounds
+        if (self.rect.left < 0 or 
+            self.rect.right > self.screen_width or
+            self.rect.top < 0 or
+            self.rect.bottom > self.screen_height): self.kill()

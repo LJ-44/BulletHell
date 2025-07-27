@@ -5,9 +5,9 @@ import sprites as sprt
 
 #TODO
 # right now:
-# ( ) homing bullet
-    # ( ) easy version - fire towards player's center position when spawned
-    # ( ) hard version - fire towards player continually tracking player's position
+# (X) homing bullet
+    # (X) fire towards player continually tracking player's position
+    # (X) 
 # ( ) exploding bullet
     # ( ) get bullet to explode into shrapnel, shrapnel-player collision
     # ( ) fire towards player, explode when near player
@@ -38,7 +38,7 @@ import sprites as sprt
 def main():
     # constants
     FPS = 60
-    BULLET_SPAWN_RATE = 10 # per second
+    BULLET_SPAWN_RATE = 1 # per second
     BULLET_SPAWN_RATE = math.floor(FPS / BULLET_SPAWN_RATE)
     
     # display
@@ -75,8 +75,6 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-                
-        screen.fill('black')
                 
         frame_count += 1
 

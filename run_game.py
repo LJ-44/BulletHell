@@ -95,11 +95,11 @@ def main():
             # main menu buttons
             if main_menu.singleplayer_button.update(mouse_pos, mouse_up) == GameState.GAMEPLAY:
                 game_state == GameState.GAMEPLAY
-                player_mode == PlayerState.ONE_PLAYER
+                player_mode == PlayerMode.ONE_PLAYER
                 
             elif main_menu.two_player_button.update(mouse_pos, mouse_up) == GameState.GAMEPLAY:
                 game_state == GameState.GAMEPLAY
-                player_mode == PlayerState.TWO_PLAYER
+                player_mode == PlayerMode.TWO_PLAYER
                 
             elif main_menu.settings_button.update(mouse_pos, mouse_up) == GameState.SETTINGS:
                 game_state == GameState.SETTINGS
@@ -117,7 +117,7 @@ def main():
             if keys[pygame.K_ESCAPE]:
                 game_state == GameState.PAUSED
             
-            if player_mode == PlayerState.ONE_PLAYER:
+            if player_mode == PlayerMode.ONE_PLAYER:
                 ...
             else: # two player
                 ...
@@ -145,7 +145,7 @@ def main():
         # --------------------
         
         if game_state == GameState.MAIN_MENU:
-            for button in main_menu.buttons:
+            for button in main_menu.ui_elements:
                 button.draw(screen)
             ...
         
