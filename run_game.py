@@ -3,6 +3,7 @@ import sys
 import math
 from src.menu import *
 import src.sprites as sprt
+import src.sound as sound
 
 #TODO
 # right now:
@@ -46,6 +47,7 @@ def main():
     
     # display
     pygame.init()
+    sound.play_music()
     resolution = (1280, 720)
     screen = pygame.display.set_mode(size=resolution)
     pygame.display.set_caption("Bullet Hell")
@@ -179,6 +181,8 @@ def main():
                 
             # escape key pauses game
             if player_mode == PlayerMode.ONE_PLAYER:
+
+                sound.play_music()
                 
                 if player_two in player_group:
                     player_group.remove(player_two)
@@ -203,9 +207,8 @@ def main():
                         player_one_hits += 1
                         bullet.hit_player_one = True
                         print(f'Player One Hits: {player_one_hits}')
-                
-                
-                ...
+
+
             elif player_mode == PlayerMode.TWO_PLAYER: 
                 
                 # spawn bullets using its spawn rate
