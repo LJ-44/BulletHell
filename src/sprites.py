@@ -13,7 +13,7 @@ class GameObject(Sprite):
         self.screen_width = self.screen.get_width()
         self.screen_height = self.screen.get_height()
 
-        self.image = pygame.Surface([width, height])
+        self.image = pygame.Surface([width, height]).convert_alpha()
         self.image.fill(color)
 
         self.rect = self.image.get_rect()
@@ -29,27 +29,19 @@ class Player1(GameObject):
                  speed: float = 3.0):
         # base class constructor
         super().__init__(color=color, width=width, height=height, speed=speed)
-        
-        self.spawn_point = (self.screen_width / 2, self.screen_height / 2)
 
         # player spawn: center of screen
         self.rect.centerx = self.screen_width / 2
         self.rect.centery = self.screen_height / 2
 
     def update(self):
-        # W,A,S,D or Arrow keys to move player
+        # W,A,S,D to move player1
         keys = pygame.key.get_pressed()
         
-        if keys[pygame.K_w] or keys[pygame.K_UP]: self.rect.centery -= self.speed
-        if keys[pygame.K_a] or keys[pygame.K_LEFT]: self.rect.centerx -= self.speed
-        if keys[pygame.K_s] or keys[pygame.K_DOWN]: self.rect.centery += self.speed
-        if keys[pygame.K_d] or keys[pygame.K_RIGHT]: self.rect.centerx += self.speed
-            
-        # if PlayerMode == PlayerMode.TWO_PLAYER:
-        #     if keys[pygame.K_w]: self.rect.centery -= self.speed
-        #     if keys[pygame.K_a]: self.rect.centerx -= self.speed
-        #     if keys[pygame.K_s]: self.rect.centery += self.speed
-        #     if keys[pygame.K_d]: self.rect.centerx += self.speed
+        if keys[pygame.K_w]: self.rect.centery -= self.speed
+        if keys[pygame.K_a]: self.rect.centerx -= self.speed
+        if keys[pygame.K_s]: self.rect.centery += self.speed
+        if keys[pygame.K_d]: self.rect.centerx += self.speed
 
         # restrict player to confines of display edges
         if (self.rect.top < 0): self.rect.top = 0
@@ -66,6 +58,26 @@ class Player2(GameObject):
     
         # base constructor
         super().__init__(color=color, width=width, height=height, speed=speed)
+
+        # player spawn: center of screen
+        self.rect.centerx = self.screen_width / 2
+        self.rect.centery = self.screen_height / 2
+
+    def update(self):
+        # Arrow keys to move player2
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_UP]: self.rect.centery -= self.speed
+        if keys[pygame.K_LEFT]: self.rect.centerx -= self.speed
+        if keys[pygame.K_DOWN]: self.rect.centery += self.speed
+        if keys[pygame.K_RIGHT]: self.rect.centerx += self.speed
+
+        # restrict player to confines of display edges
+        if (self.rect.top < 0): self.rect.top = 0
+        if (self.rect.left < 0): self.rect.left = 0
+        if (self.rect.right > self.screen_width): self.rect.right = self.screen_width
+        if (self.rect.bottom > self.screen_height): self.rect.bottom = self.screen_height
+
 
 class Bullet(GameObject):
     def __init__(self, 

@@ -181,8 +181,6 @@ def main():
                 
             # escape key pauses game
             if player_mode == PlayerMode.ONE_PLAYER:
-
-                sound.play_music()
                 
                 if player_two in player_group:
                     player_group.remove(player_two)
@@ -235,7 +233,7 @@ def main():
                     elif (pygame.sprite.collide_rect(player_two, bullet) and not getattr(bullet, 'hit_player_two', False)):
                         player_two_hits += 1
                         bullet.hit_player_two = True
-                        print(f'Player Two Hits: {player_one_hits}')
+                        print(f'Player Two Hits: {player_two_hits}')
                     
                 player_group.update()
                 bullets_group.update()
