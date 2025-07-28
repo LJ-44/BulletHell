@@ -37,7 +37,7 @@ import src.sprites as sprt
 #TODO
 
 
-# Main Menu screen background animation ?
+# Main Menu screen background animation?
 # dimmed, similar to pause screen background, very cool
 
 def main():
