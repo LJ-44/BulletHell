@@ -55,7 +55,7 @@ def main():
     # sprites
     player_group = pygame.sprite.Group()
     bullets_group = pygame.sprite.Group()
-    player = sprt.Player()
+    player = sprt.Player1()
     player_group.add(player)
 
     # variables

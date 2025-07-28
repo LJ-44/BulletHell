@@ -42,11 +42,10 @@ def main():
     
     # display
     pygame.init()
-    resolution = (1920, 1080)
+    resolution = (1280, 720)
     screen = pygame.display.set_mode(size=resolution)
     pygame.display.set_caption("Bullet Hell")
     clock = pygame.time.Clock()
-    running = True
     
     # screens
     main_menu = MainMenu()
@@ -56,9 +55,10 @@ def main():
     # sprites
     player_group = pygame.sprite.Group()
     bullets_group = pygame.sprite.Group()
-    player_one = sprt.Player()
-    player_two = sprt.Player()
-    player_group.add(player_one)
+    player_one = sprt.Player1()
+    player_two = sprt.Player2()
+
+    player_group.add(player_one, player_two)
 
     # variables
     normal_bullet_spawn_rate = 4 # bullets per second
@@ -175,8 +175,11 @@ def main():
             # escape key pauses game
             if player_mode == PlayerMode.ONE_PLAYER:
                 
+                if player_two in player_group:
+                    player_group.remove(player_two)
+                
                 if frame_count % math.floor( FPS / normal_bullet_spawn_rate) == 0:
-                    normal_bullet = sprt.Bullet(left=True, right=True, top=True, bottom=True)
+                    normal_bullet = sprt.Bullet()
                     bullets_group.add(normal_bullet)
                 
                 # if frame_count % math.floor( FPS / homing_bullet_spawn_rate) == 0:
@@ -198,15 +201,12 @@ def main():
                 
                 
                 ...
-            elif player_mode == PlayerMode.TWO_PLAYER:
-                
-                player_group.add(player_two)
+            elif player_mode == PlayerMode.TWO_PLAYER: 
                 
                 # spawn bullets using its spawn rate
                 if frame_count % math.floor( FPS / normal_bullet_spawn_rate) == 0:
-                    normal_bullet = sprt.Bullet(left=True, right=True, top=True, bottom=True)
+                    normal_bullet = sprt.Bullet()
                     bullets_group.add(normal_bullet)
-                    
                     
                 # TODO: fix below
                 # if frame_count % math.floor( FPS / homing_bullet_spawn_rate) == 0:
@@ -231,12 +231,10 @@ def main():
                     
                 player_group.update()
                 bullets_group.update()
-                
-                
-                ...
         
         elif game_state == GameState.PAUSED:
             for ui_element in pause_screen.ui_elements:
+                action = ui_element.update(mouse_pos, mouse_up)
                 if action is not None:
                     if action == GameState.GAMEPLAY:
                         game_state = GameState.GAMEPLAY
@@ -244,11 +242,14 @@ def main():
                         game_state = GameState.MAIN_MENU
                     elif action == GameState.QUIT:
                         game_state = GameState.QUIT
-            ...
+                        
         elif game_state == GameState.SETTINGS:
+            
             ...
+            
         elif game_state == GameState.QUIT:
             running = False
+            
         else:
             pass
         

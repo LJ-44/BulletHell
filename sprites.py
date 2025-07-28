@@ -21,12 +21,17 @@ class GameObject(Sprite):
 
     def update(self): pass
 
-class Player(GameObject):
-    def __init__(self):
+class Player1(GameObject):
+    def __init__(self, 
+                 color: str = 'green', 
+                 width: float = 10.0, 
+                 height: float = 10.0, 
+                 speed: float = 3.0):
         # base class constructor
-        super().__init__(color="green", width=10.0, height=10.0, speed=3)
+        super().__init__(color=color, width=width, height=height, speed=speed)
         
-        
+        self.spawn_point = (self.screen_width / 2, self.screen_height / 2)
+
         # player spawn: center of screen
         self.rect.centerx = self.screen_width / 2
         self.rect.centery = self.screen_height / 2
@@ -34,33 +39,49 @@ class Player(GameObject):
     def update(self):
         # W,A,S,D or Arrow keys to move player
         keys = pygame.key.get_pressed()
-
+        
         if keys[pygame.K_w] or keys[pygame.K_UP]: self.rect.centery -= self.speed
         if keys[pygame.K_a] or keys[pygame.K_LEFT]: self.rect.centerx -= self.speed
         if keys[pygame.K_s] or keys[pygame.K_DOWN]: self.rect.centery += self.speed
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]: self.rect.centerx += self.speed
+            
+        # if PlayerMode == PlayerMode.TWO_PLAYER:
+        #     if keys[pygame.K_w]: self.rect.centery -= self.speed
+        #     if keys[pygame.K_a]: self.rect.centerx -= self.speed
+        #     if keys[pygame.K_s]: self.rect.centery += self.speed
+        #     if keys[pygame.K_d]: self.rect.centerx += self.speed
 
         # restrict player to confines of display edges
         if (self.rect.top < 0): self.rect.top = 0
         if (self.rect.left < 0): self.rect.left = 0
         if (self.rect.right > self.screen_width): self.rect.right = self.screen_width
         if (self.rect.bottom > self.screen_height): self.rect.bottom = self.screen_height
+        
+class Player2(GameObject):
+    def __init__(self,
+                 color: str = "purple",
+                 width: float = 10.0,
+                 height: float = 10.0,
+                 speed: float = 3.0):
+    
+        # base constructor
+        super().__init__(color=color, width=width, height=height, speed=speed)
 
 class Bullet(GameObject):
-    def __init__(self, left: bool = False, right: bool = True, top: bool = False, bottom: bool = False):
+    def __init__(self, 
+                 color: str = "red",
+                 width: float = 5.0,
+                 height: float = 5.0,
+                 speed: float = 2.0,):
         # base class constructor
-        super().__init__(color="red", width=5.0, height=5.0, speed=2)
+        super().__init__(color=color, width=width, height=height, speed=speed)
 
         # collision detection
         self.hit_player_one = False
         self.hit_player_two = False
         
         # store desired screen edges (chosen randomly for spawning)
-        self.edges = []
-        if left: self.edges.append("left")
-        if right: self.edges.append("right")
-        if top: self.edges.append("top")
-        if bottom: self.edges.append("bottom")
+        self.edges = ["left", "right", "top", "bottom"]
         
         self.spawn_edge = random.choice(self.edges)
         
@@ -107,9 +128,14 @@ class Bullet(GameObject):
             self.rect.bottom > self.screen_height): self.kill()
 
 class HomingBullet(GameObject):
-    def __init__(self, target: GameObject):
+    def __init__(self, 
+                 target: GameObject,
+                 color: str = "blue",
+                 width: float = 9.0,
+                 height: float = 9.0,
+                 speed: float = 4.0):
         # base class constructor
-        super().__init__(color="blue", width=9.0, height=9.0, speed=4)
+        super().__init__(color=color, width=width, height=height, speed=speed)
 
         # collision detection
         self.hit_player_one = False
@@ -189,9 +215,14 @@ class HomingBullet(GameObject):
             self.rect.top < 0 or
             self.rect.bottom > self.screen_height): self.kill()
 class ExplodingBullet(GameObject):
-    def __init__(self, target: GameObject):
+    def __init__(self, 
+                 target: GameObject,
+                 color: str = "orange",
+                 width: float = 8.0,
+                 height: float = 8.0,
+                 speed: float = 3.0):
         # base class constructor
-        super().__init__(color="orange", width=8.0, height=8.0, speed=3)
+        super().__init__(color=color, width=width, height=height, speed=speed)
         
         # collision detection
         self.hit_player_one = False
