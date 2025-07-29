@@ -4,6 +4,7 @@ from pygame.sprite import Sprite
 from pygame.rect import Rect
 from enum import Enum, auto
 from typing import Optional, Any
+import src.sound as sound
 
 def create_surface_with_text(text, font_size, text_rgb, font_path="assets/font/BulletHell_font.ttf"):
     font = pygame.freetype.Font(file=font_path, size=font_size)
@@ -218,7 +219,7 @@ class DifficultyScreen:
                 }
                                         ])
 
-class VolumeSlider(Sprite):
+class MusicVolumeSlider(Sprite):
     def __init__(self,
                  center_pos, 
                  slider_width: int = 200, 
@@ -229,10 +230,6 @@ class VolumeSlider(Sprite):
                  min_volume: int = 0,
                  max_volume: int = 100):
         super().__init__()
-        
-        screen = pygame.display.get_surface()
-        screen_width = screen.get_width()
-        screen_height = screen.get_height()
         
         self.slider_width = slider_width
         self.slider_height = slider_height
@@ -293,10 +290,85 @@ class VolumeSlider(Sprite):
             self.dragging_slider = False
         
     def draw(self, surface):
+        surface.blit(self.image, self.rect)
+        
+    def get_volume(self):
+        return int(self.current_volume * 100)
+class SfxVolumeSlider(Sprite):
+    def __init__(self,
+                 center_pos, 
+                 slider_width: int = 200, 
+                 slider_height: int = 20, 
+                 handle_width: int = 10, 
+                 handle_height:int = 30, 
+                 current_volume: int = 50,
+                 min_volume: int = 0,
+                 max_volume: int = 100):
+        super().__init__()
+        
+        self.slider_width = slider_width
+        self.slider_height = slider_height
+        self.handle_width = handle_width
+        self.handle_height = handle_height
+        self.current_volume = current_volume
+        self.min_volume = min_volume
+        self.max_volume = max_volume
+        self.dragging_slider = False
+        
+        self.slider = pygame.Surface((slider_width, slider_height))
+        self.slider.fill((200,0,0))
+        
+        self.handle = pygame.Surface((handle_width, handle_height))
+        self.handle.fill((255,0,0))
+        
+        self.image = pygame.Surface((slider_width, handle_height)).convert_alpha()
+        self.image.blit(self.slider, (0, (handle_height - slider_height) // 2))
+        
+        self.update_handle_pos()
+        
+        self.rect = self.image.get_rect(center=center_pos)
+        
+    def update_handle_pos(self):
+        handle_xpos = int((self.current_volume - self.min_volume) / 
+                          (self.max_volume - self.min_volume) * 
+                          (self.slider_width - self.handle_width))
+        
+        self.image.fill((0,0,0,0))
+        self.image.blit(self.slider, (0, (self.handle_height - self.slider_height) // 2))
+        self.image.blit(self.handle, (handle_xpos, 0))
+        
+    def update(self, mouse_pos, mouse_clicked):
+        
+        if not self.dragging_slider and mouse_clicked:
+            
+            handle_xpos = int((self.current_volume - self.min_volume) / 
+                          (self.max_volume - self.min_volume) * 
+                          (self.rect.width - self.handle_width))
+            
+            handle_rect = pygame.Rect(self.rect.x + handle_xpos,
+                                  self.rect.y,
+                                  self.handle_width,
+                                  self.handle_height)
+            
+            if handle_rect.collidepoint(mouse_pos):
+                self.dragging_slider = True
+            ...
+        if self.dragging_slider:
+            relative_xpos = mouse_pos[0] - self.rect.x
+            self.current_volume = (relative_xpos / self.rect.width) * (self.max_volume - self.min_volume) + self.min_volume
+            
+            self.current_volume = max(self.min_volume, min(self.max_volume, self.current_volume))
+            sound.set_sfx_volume(float(self.current_volume / 100))
+            self.update_handle_pos()
+            
+        if not mouse_clicked:
+            self.dragging_slider = False
+        
+    def draw(self, surface):
         surface.blit(self.image, self.rect) 
         
     def get_volume(self):
-        return self.current_volume
+        return int(self.current_volume * 100)
 
 class SettingsScreen:
     def __init__(self):
@@ -327,22 +399,34 @@ class SettingsScreen:
                                                      "text": "Windowed",
                                                      "action": None #TODO: figure this out
                                                  },
-                                                 {
+                                             ],
+                                             other_ui_specs=[
+                                                 {   
+                                                     "center_position": (screen_width / 2 , screen_height * 0.56),
                                                      "text": "Music Volume",
                                                      "action": None #TODO: figure this out
                                                  },
                                                  {
-                                                     "text": "Sound Effects",
+                                                     "center_position": (screen_width / 2 , screen_height * 0.67),
+                                                     "text": "Sfx Volume",
                                                      "action": None #TODO: figure this out
-                                                 }
-                                             ],
-                                             other_ui_specs=[
+                                                 },
                                                  {
                                                      "center_position": (screen_width * 0.13 , screen_height * 0.94),
                                                      "text": "Back to Main Menu",
                                                      "action": GameState.MAIN_MENU
                                                  }
                                              ])
+        
+        self.music_volume_slider = MusicVolumeSlider(center_pos=(screen_width * 0.75, screen_height * 0.5))
+        self.sfx_volume_slider = SfxVolumeSlider(center_pos = (screen_width * 0.75, screen_height * 0.6))
+        
+    def update(self, mouse_pos, mouse_clicked):
+        self.music_volume_slider.update(mouse_pos, mouse_clicked)
+        self.sfx_volume_slider.update(mouse_pos, mouse_clicked)
+        
+    def draw(self, surface):
+        surface.blit(self.music_volume_slider, self.sfx_volume_slider)
         
 class GameOverScreen:
     def __init__(self):

@@ -3,14 +3,28 @@ import pygame
 theme = "assets/audio/Adventure-Time_Manlorette-Party.wav"
 
 # TODO: add sound files below 
+pygame.mixer.init()
+hit_sound = pygame.mixer.Sound("assets/audio/placeholder_sound.wav")
+death_sound = pygame.mixer.Sound("assets/audio/placeholder_sound.wav")
+normal_bullet_sound = pygame.mixer.Sound("assets/audio/placeholder_sound.wav")
+homing_bullet_sound = pygame.mixer.Sound("assets/audio/placeholder_sound.wav")
+exploding_bullet_sound = pygame.mixer.Sound("assets/audio/placeholder_sound.wav")
+button_hover_sound = pygame.mixer.Sound("assets/audio/placeholder_sound.wav")
+button_clicked_sound = pygame.mixer.Sound("assets/audio/placeholder_sound.wav")
 
-hit_sound = " "
-death_sound = " "
-normal_bullet_sound = " "
-homing_bullet_sound = " "
-exploding_bullet_sound = " "
-button_hover_sound = " "
-button_clicked_sound = " "
+all_sound_effects = [
+    hit_sound, 
+    death_sound, 
+    normal_bullet_sound, 
+    homing_bullet_sound, 
+    exploding_bullet_sound, 
+    button_hover_sound, 
+    button_clicked_sound
+]
+
+def set_sfx_volume(volume):
+    for sound in all_sound_effects:
+        sound.set_volume(volume)
 
 
 def play_music(path=theme, volume=0.4):

@@ -60,7 +60,8 @@ def main():
     pause_screen = PauseScreen()
     difficulty_screen = DifficultyScreen()
     game_over_screen = GameOverScreen()
-    volume_slider = VolumeSlider((screen.get_width() * 0.75, screen.get_height() * 0.5))
+    music_volume_slider = MusicVolumeSlider(center_pos=(screen.get_width() / 2, screen.get_height() * 0.615))
+    sfx_volume_slider = SfxVolumeSlider(center_pos=(screen.get_width() / 2, screen.get_height() * 0.725))
 
     # sprites
     player_group = pygame.sprite.Group()
@@ -139,7 +140,8 @@ def main():
                 if action is not None:
                     if action == GameState.MAIN_MENU:
                         game_state = GameState.MAIN_MENU
-            volume_slider.update(mouse_pos, mouse_clicked)
+            music_volume_slider.update(mouse_pos, mouse_clicked)
+            sfx_volume_slider.update(mouse_pos, mouse_clicked)
                         
         elif game_state == GameState.CHOOSE_DIFFICULTY:
             
@@ -288,7 +290,8 @@ def main():
         elif game_state == GameState.SETTINGS:
             for ui_element in settings_screen.ui_elements:
                 ui_element.draw(screen)
-            volume_slider.draw(screen)
+            music_volume_slider.draw(screen)
+            sfx_volume_slider.draw(screen)
         
         elif game_state == GameState.CHOOSE_DIFFICULTY:
             for ui_element in difficulty_screen.ui_elements:
