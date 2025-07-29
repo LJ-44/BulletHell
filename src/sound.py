@@ -13,8 +13,7 @@ button_hover_sound = " "
 button_clicked_sound = " "
 
 
-def play_music(path=theme, volume=0.5):
-    pygame.mixer.init()
+def play_music(path=theme, volume=0.4):
     pygame.mixer.music.load(path)
     pygame.mixer.music.set_volume(volume)
     pygame.mixer.music.play(-1) # loop music

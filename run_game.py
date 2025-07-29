@@ -7,34 +7,33 @@ import src.sound as sound
 
 #TODO
 # right now:
-# ( ) homing bullet
-    # ( ) easy version - fire towards player's center position when spawned
-    # ( ) hard version - fire towards player continually tracking player's position
+# (X) homing bullet
+    # (X) easy version - fire towards player's center position when spawned
+    # (X) hard version - fire towards player continually tracking player's position
 # ( ) exploding bullet
     # ( ) get bullet to explode into shrapnel, shrapnel-player collision
     # ( ) fire towards player, explode when near player
 # ( ) lives counter
 # ( ) death system
 # later:
-# ( ) title screen
-    # ( ) singleplayer mode 
-    # ( ) 2 player mode
-        # players choose their own color
-        # whoever dies (or runs out of lives) first loses
-    # ( ) difficulties
-        # easy - left/right walls only, low spawn rate
-        # medium - left/right/top walls, medium spawn rate
-        # hard - all edges, high spawn rate
-        # insane - all edges, very high spawn rate
-        # hell - all edges, extremely high spawn rate
+# (X) title screen
+    # (X) singleplayer mode 
+    # (X) 2 player mode
+        # ( ) players choose their own color
+        # ( ) whoever dies (or runs out of lives) first loses
+    # (X) difficulties
+        # (X) easy - left/right walls only, low spawn rate
+        # (X) medium - left/right/top walls, medium spawn rate
+        # (X) hard - all edges, high spawn rate
+        # (X) insane - all edges, very high spawn rate
+        # (X) hell - all edges, extremely high spawn rate
 # ( ) high score
-    # save score into file by read/write (text file?)
-    # score = seconds survived * 10 
+    # ( ) save score into file by read/write (text file?)
+    # ( ) score = seconds survived * 10 
 # ( ) death system
-    # game over screen
-    # 
+    # ( ) game over screen, "Try again? Rematch? etc"
 # ( ) sound effects - 8 bit
-# ( ) music - 8 bit (MANLORETTE PARTY - ADVENTURE TIME)
+# (X) music - 8 bit (MANLORETTE PARTY - ADVENTURE TIME)
 #TODO
 
 
@@ -46,18 +45,22 @@ def main():
     FPS = 60
     
     # display
-    pygame.init()
+    pygame.mixer.pre_init()
+    pygame.mixer.init()
     sound.play_music()
+    pygame.init()
     resolution = (1280, 720)
     screen = pygame.display.set_mode(size=resolution)
     pygame.display.set_caption("Bullet Hell")
     clock = pygame.time.Clock()
     
-    # screens
+    # UI
     main_menu = MainMenu()
     settings_screen = SettingsScreen()
     pause_screen = PauseScreen()
     difficulty_screen = DifficultyScreen()
+    game_over_screen = GameOverScreen()
+    volume_slider = VolumeSlider((screen.get_width() * 0.75, screen.get_height() * 0.5))
 
     # sprites
     player_group = pygame.sprite.Group()
@@ -92,14 +95,15 @@ def main():
 
         mouse_up = False
         mouse_pos = pygame.mouse.get_pos()
+        mouse_clicked = pygame.mouse.get_pressed()[0]
         
         # Exit if user clicks X on window
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 mouse_up = True
-            if event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     if game_state == GameState.GAMEPLAY:
                         game_state = GameState.PAUSED
@@ -128,6 +132,15 @@ def main():
                     elif action == GameState.QUIT:
                         game_state = GameState.QUIT
                         
+        elif game_state == GameState.SETTINGS:
+
+            for ui_element in settings_screen.ui_elements:
+                action = ui_element.update(mouse_pos, mouse_up)
+                if action is not None:
+                    if action == GameState.MAIN_MENU:
+                        game_state = GameState.MAIN_MENU
+            volume_slider.update(mouse_pos, mouse_clicked)
+                        
         elif game_state == GameState.CHOOSE_DIFFICULTY:
             
             for ui_element in difficulty_screen.ui_elements:
@@ -148,36 +161,30 @@ def main():
                     elif action == Difficulty.HELL:
                         game_state = GameState.GAMEPLAY
                         difficulty = Difficulty.HELL
-            ...
                 
                
         elif game_state == GameState.GAMEPLAY:
             
             if difficulty == Difficulty.EASY:
-                normal_bullet_spawn_rate = 4
+                normal_bullet_spawn_rate = 5
                 homing_bullet_spawn_rate = 1
                 exploding_bullet_spawn_rate = 1
-                ...
             elif difficulty == Difficulty.MEDIUM:
-                normal_bullet_spawn_rate = 7
+                normal_bullet_spawn_rate = 8
                 homing_bullet_spawn_rate = 1
                 exploding_bullet_spawn_rate = 1
-                ...
             elif difficulty == Difficulty.HARD:
-                normal_bullet_spawn_rate = 10
+                normal_bullet_spawn_rate = 12
                 homing_bullet_spawn_rate = 1
                 exploding_bullet_spawn_rate = 1
-                ...
             elif difficulty == Difficulty.INSANE:
-                normal_bullet_spawn_rate = 15
+                normal_bullet_spawn_rate = 17
                 homing_bullet_spawn_rate = 1
                 exploding_bullet_spawn_rate = 1
-                ...
             elif difficulty == Difficulty.HELL:
-                normal_bullet_spawn_rate = 20
+                normal_bullet_spawn_rate = 24
                 homing_bullet_spawn_rate = 1
                 exploding_bullet_spawn_rate = 1
-                ...
                 
             # escape key pauses game
             if player_mode == PlayerMode.ONE_PLAYER:
@@ -248,16 +255,21 @@ def main():
                         game_state = GameState.MAIN_MENU
                     elif action == GameState.QUIT:
                         game_state = GameState.QUIT
+            
                         
-        elif game_state == GameState.SETTINGS:
-
-            for ui_element in settings_screen.ui_elements:
+        elif game_state == GameState.GAME_OVER:
+            
+            for ui_element in game_over_screen.ui_elements:
                 action = ui_element.update(mouse_pos, mouse_up)
                 if action is not None:
-                    if action == GameState.MAIN_MENU:
+                    if action == PlayerMode.ONE_PLAYER:
+                        player_mode = PlayerMode.ONE_PLAYER
+                    elif action == PlayerMode.TWO_PLAYER:
+                        player_mode = PlayerMode.TWO_PLAYER
+                    elif action == GameState.MAIN_MENU:
                         game_state = GameState.MAIN_MENU
-            
-            ...
+                    elif action == GameState.QUIT:
+                        game_state = GameState.QUIT
             
         elif game_state == GameState.QUIT:
             running = False
@@ -272,7 +284,11 @@ def main():
         if game_state == GameState.MAIN_MENU:
             for ui_element in main_menu.ui_elements:
                 ui_element.draw(screen)
-            ...
+            
+        elif game_state == GameState.SETTINGS:
+            for ui_element in settings_screen.ui_elements:
+                ui_element.draw(screen)
+            volume_slider.draw(screen)
         
         elif game_state == GameState.CHOOSE_DIFFICULTY:
             for ui_element in difficulty_screen.ui_elements:
@@ -281,9 +297,7 @@ def main():
         elif game_state == GameState.GAMEPLAY:
             player_group.draw(screen)
             bullets_group.draw(screen)
-            ...
-
-            ...
+            
         elif game_state == GameState.PAUSED:
             
             player_group.draw(screen)
@@ -291,10 +305,14 @@ def main():
             
             # background dimming overlay effect when pausing
             overlay = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
-            overlay.fill((0, 0, 0, 130)) 
-            screen.blit(overlay, (0, 0))
+            overlay.fill((0, 0, 0, 100)) # 4th value is transparency
+            screen.blit(overlay, (0, 0)) 
             
             for ui_element in pause_screen.ui_elements:
+                ui_element.draw(screen)
+                
+        elif game_state == GameState.GAME_OVER:
+            for ui_element in game_over_screen.ui_elements:
                 ui_element.draw(screen)
         else:
             pass
