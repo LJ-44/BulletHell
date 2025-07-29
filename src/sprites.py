@@ -284,7 +284,3 @@ class ExplodingBullet(GameObject):
             self.rect.right > self.screen_width or
             self.rect.top < 0 or
             self.rect.bottom > self.screen_height): self.kill()
-        
-
-        
-        

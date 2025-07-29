@@ -226,9 +226,9 @@ class MusicVolumeSlider(Sprite):
                  slider_height: int = 20, 
                  handle_width: int = 10, 
                  handle_height:int = 30, 
-                 current_volume: int = 50,
-                 min_volume: int = 0,
-                 max_volume: int = 100):
+                 current_volume: float = 0.5,
+                 min_volume: float = 0.0,
+                 max_volume: float = 1.0):
         super().__init__()
         
         self.slider_width = slider_width
@@ -283,7 +283,7 @@ class MusicVolumeSlider(Sprite):
             self.current_volume = (relative_xpos / self.rect.width) * (self.max_volume - self.min_volume) + self.min_volume
             
             self.current_volume = max(self.min_volume, min(self.max_volume, self.current_volume))
-            pygame.mixer.music.set_volume(float(self.current_volume / 100))
+            pygame.mixer.music.set_volume(self.current_volume)
             self.update_handle_pos()
             
         if not mouse_clicked:
@@ -301,9 +301,9 @@ class SfxVolumeSlider(Sprite):
                  slider_height: int = 20, 
                  handle_width: int = 10, 
                  handle_height:int = 30, 
-                 current_volume: int = 50,
-                 min_volume: int = 0,
-                 max_volume: int = 100):
+                 current_volume: float = 0.5,
+                 min_volume: float = 0.0,
+                 max_volume: float = 1.0):
         super().__init__()
         
         self.slider_width = slider_width
@@ -358,7 +358,7 @@ class SfxVolumeSlider(Sprite):
             self.current_volume = (relative_xpos / self.rect.width) * (self.max_volume - self.min_volume) + self.min_volume
             
             self.current_volume = max(self.min_volume, min(self.max_volume, self.current_volume))
-            sound.set_sfx_volume(float(self.current_volume / 100))
+            sound.set_sfx_volume(self.current_volume)
             self.update_handle_pos()
             
         if not mouse_clicked:
