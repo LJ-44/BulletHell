@@ -169,24 +169,24 @@ def main():
             
             if difficulty == Difficulty.EASY:
                 normal_bullet_spawn_rate = 5
-                homing_bullet_spawn_rate = 1
-                exploding_bullet_spawn_rate = 1
+                homing_bullet_spawn_rate = 0.1
+                exploding_bullet_spawn_rate = 0.067
             elif difficulty == Difficulty.MEDIUM:
                 normal_bullet_spawn_rate = 8
-                homing_bullet_spawn_rate = 1
-                exploding_bullet_spawn_rate = 1
+                homing_bullet_spawn_rate = 0.125
+                exploding_bullet_spawn_rate = 0.077
             elif difficulty == Difficulty.HARD:
                 normal_bullet_spawn_rate = 12
-                homing_bullet_spawn_rate = 1
-                exploding_bullet_spawn_rate = 1
+                homing_bullet_spawn_rate = 0.2
+                exploding_bullet_spawn_rate = 0.091
             elif difficulty == Difficulty.INSANE:
                 normal_bullet_spawn_rate = 17
-                homing_bullet_spawn_rate = 1
-                exploding_bullet_spawn_rate = 1
+                homing_bullet_spawn_rate = 0.25
+                exploding_bullet_spawn_rate = 0.111
             elif difficulty == Difficulty.HELL:
                 normal_bullet_spawn_rate = 24
-                homing_bullet_spawn_rate = 1
-                exploding_bullet_spawn_rate = 1
+                homing_bullet_spawn_rate = 0.3
+                exploding_bullet_spawn_rate = 0.143
                 
             # escape key pauses game
             if player_mode == PlayerMode.ONE_PLAYER:
@@ -198,13 +198,13 @@ def main():
                     normal_bullet = sprt.Bullet()
                     bullets_group.add(normal_bullet)
                 
-                # if frame_count % math.floor( FPS / homing_bullet_spawn_rate) == 0:
-                #     homing_bullet = sprt.HomingBullet(target=player_one)
-                #     bullets_group.add(homing_bullet)
+                if frame_count % math.floor( FPS / homing_bullet_spawn_rate) == 0:
+                    homing_bullet = sprt.HomingBullet(target=player_one)
+                    bullets_group.add(homing_bullet)
                 
-                # if frame_count % math.floor( FPS / exploding_bullet_spawn_rate) == 0:
-                #     exploding_bullet = sprt.ExplodingBullet(target=player_one)
-                #     bullets_group.add(exploding_bullet)
+                if frame_count % math.floor( FPS / exploding_bullet_spawn_rate) == 0:
+                    exploding_bullet = sprt.ExplodingBullet(target=player_one)
+                    bullets_group.add(exploding_bullet)
                 
                 player_group.update()
                 bullets_group.update()
@@ -215,7 +215,6 @@ def main():
                         bullet.hit_player_one = True
                         print(f'Player One Hits: {player_one_hits}')
 
-
             elif player_mode == PlayerMode.TWO_PLAYER: 
                 
                 # spawn bullets using its spawn rate
@@ -224,13 +223,13 @@ def main():
                     bullets_group.add(normal_bullet)
                     
                 # TODO: fix below
-                # if frame_count % math.floor( FPS / homing_bullet_spawn_rate) == 0:
-                #     homing_bullet = sprt.HomingBullet(target=player_one)
-                #     bullets_group.add(homing_bullet)
+                if frame_count % math.floor( FPS / homing_bullet_spawn_rate) == 0:
+                    homing_bullet = sprt.HomingBullet(target=player_one)
+                    bullets_group.add(homing_bullet)
                 
-                # if frame_count % math.floor( FPS / exploding_bullet_spawn_rate) == 0:
-                #     exploding_bullet = sprt.ExplodingBullet(target=player_one)
-                #     bullets_group.add(exploding_bullet)
+                if frame_count % math.floor( FPS / exploding_bullet_spawn_rate) == 0:
+                    exploding_bullet = sprt.ExplodingBullet(target=player_one)
+                    bullets_group.add(exploding_bullet)
                 
                 for bullet in bullets_group:
                     
