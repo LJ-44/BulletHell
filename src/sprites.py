@@ -183,7 +183,7 @@ class HomingBullet(GameObject):
         self.passed_player = False
         
         # bullet steering
-        self.turn_rate = 1.0 # degrees per frame
+        self.turn_rate = 0.4 # degrees per frame
             
     # easy tracking
     def update(self):
@@ -214,7 +214,7 @@ class HomingBullet(GameObject):
                 
         else: 
             # continue trajectory after passing player
-            self.angle += self.delta_angle / 2.5
+            self.angle += self.delta_angle
             
         velocity_vector = pygame.Vector2(math.cos(math.radians(self.angle)), math.sin(math.radians(self.angle)))
         
@@ -229,6 +229,7 @@ class HomingBullet(GameObject):
 class ExplodingBullet(GameObject):
     def __init__(self, 
                  target: GameObject,
+                 sprite_group,
                  color: str = "orange",
                  width: float = 8.0,
                  height: float = 8.0,
@@ -236,11 +237,14 @@ class ExplodingBullet(GameObject):
         # base class constructor
         super().__init__(color=color, width=width, height=height, speed=speed)
         
+        self.sprite_group = sprite_group
+        
         # collision detection
         self.hit_player_one = False
         self.hit_player_two = False
 
         self.target = target
+        self.color = color
 
         edges = ["left", "right", "top", "bottom"]
         spawn_edge = random.choice(edges)
@@ -265,22 +269,117 @@ class ExplodingBullet(GameObject):
         to_target = pygame.Vector2(self.target.rect.center) - self.bullet_position
         self.angle = math.degrees(math.atan2(to_target.y, to_target.x))
         
-        # track if bullet missed the player
-        self.delta_angle = 0.0
+
         self.explode_bullet = False
         
         # bullet steering
         self.turn_rate = 1.0 # degrees per frame
         
+        # explosion effect stuff
+        self.explosion_size = float(self.rect.width)
+        self.max_explosion_size = 20 
+        self.growth_rate = 0.25
+        
 
     def update(self):
         
+        target_vector = pygame.Vector2(self.target.rect.center) - self.bullet_position
+        target_angle = math.degrees(math.atan2(target_vector.x, target_vector.y))
         
+        target_vector = pygame.Vector2(self.target.rect.center) - self.bullet_position
+        target_angle = math.degrees(math.atan2(target_vector.y, target_vector.x))
         
-        
+        if not self.explode_bullet:
+            
+            # smallest signed angle difference
+            difference = ((target_angle - self.angle + 180) % 360) - 180
+            
+            # limit to turn rate
+            if difference > self.turn_rate:
+                difference = self.turn_rate
+            elif difference < -self.turn_rate:
+                difference = -self.turn_rate
+                
+            # turn
+            self.angle += difference
+            
+            velocity_vector = pygame.Vector2(math.cos(math.radians(self.angle)), math.sin(math.radians(self.angle)))
+            
+            if velocity_vector.distance_to(target_vector) < 125:
+                self.explode_bullet = True
+                
+            self.bullet_position += velocity_vector * self.speed
+            self.rect.center = (int(self.bullet_position.x), int(self.bullet_position.y))
+                
+        else: 
+            # grow the explosion 
+            self.explosion_size += self.growth_rate
+
+            # update rect size
+            bullet_size = int(self.explosion_size)
+            self.rect.width = bullet_size
+            self.rect.height = bullet_size
+            self.rect.center = self.bullet_position
+
+            # update image to match new size
+            self.image = pygame.Surface((bullet_size, bullet_size), pygame.SRCALPHA)
+            pygame.draw.rect(
+                self.image,
+                self.color,
+                pygame.Rect(0, 0, bullet_size, bullet_size)
+            )
+
+            # explode into shrapnel
+            if bullet_size >= self.max_explosion_size:
+                for shrapnel in self.spawn_shrapnel():
+                    self.sprite_group.add(shrapnel)
+                self.kill()
         
         # erase object if it goes out of bounds
         if (self.rect.left < 0 or 
             self.rect.right > self.screen_width or
             self.rect.top < 0 or
             self.rect.bottom > self.screen_height): self.kill()
+        
+    def spawn_shrapnel(self):
+        shrapnel_list = []
+        shrapnel_count = random.randint(8, 12)
+        for num_shrapnel in range(shrapnel_count):
+            angle = random.randint(0, 360)
+            shrapnel = ExplosionShrapnel(center_pos=self.rect.center, angle_deg=angle)
+            shrapnel_list.append(shrapnel)
+        return shrapnel_list
+        
+class ExplosionShrapnel(GameObject):
+    def __init__(self, 
+                 center_pos, 
+                 angle_deg: int,
+                 width: float = 6.0 , 
+                 height: float = 6.0, 
+                 speed: float = 4.0):
+        
+        color_list = ["red", "yellow", "orange"]
+        color = random.choice(color_list)
+        
+        super().__init__(color=color, width=width, height=height, speed=speed)
+
+        self.rect.center = center_pos
+        self.shrapnel_position = pygame.Vector2(self.rect.center)
+        self.angle = angle_deg
+        
+        self.direction = pygame.Vector2(math.cos(math.radians(self.angle)), math.sin(math.radians(self.angle)))
+        
+        
+    def update(self):
+        
+        self.shrapnel_position += self.direction * self.speed
+        self.rect.center = (int(self.shrapnel_position.x), int(self.shrapnel_position.y))
+        
+        # erase object if it goes out of bounds
+        if (self.rect.left < 0 or 
+            self.rect.right > self.screen_width or
+            self.rect.top < 0 or
+            self.rect.bottom > self.screen_height): self.kill()
+        ...
+        
+        

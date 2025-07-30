@@ -203,17 +203,17 @@ def main():
                     bullets_group.add(homing_bullet)
                 
                 if frame_count % math.floor( FPS / exploding_bullet_spawn_rate) == 0:
-                    exploding_bullet = sprt.ExplodingBullet(target=player_one)
+                    exploding_bullet = sprt.ExplodingBullet(target=player_one, sprite_group=bullets_group)
                     bullets_group.add(exploding_bullet)
-                
-                player_group.update()
-                bullets_group.update()
-                
+                    
                 for bullet in bullets_group:
                     if (pygame.sprite.collide_rect(player_one, bullet) and not getattr(bullet, 'hit_player_one', False)):
                         player_one_hits += 1
                         bullet.hit_player_one = True
                         print(f'Player One Hits: {player_one_hits}')
+                
+                player_group.update()
+                bullets_group.update()
 
             elif player_mode == PlayerMode.TWO_PLAYER: 
                 
