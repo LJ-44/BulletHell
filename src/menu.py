@@ -4,7 +4,6 @@ from pygame.sprite import Sprite
 from pygame.rect import Rect
 from enum import Enum, auto
 from typing import Optional, Any
-import src.sound as sound
 
 def create_surface_with_text(text, font_size, text_rgb, font_path="assets/font/BulletHell_font.ttf"):
     font = pygame.freetype.Font(file=font_path, size=font_size)
@@ -295,6 +294,7 @@ class MusicVolumeSlider(Sprite):
     def get_volume(self):
         return int(self.current_volume * 100)
 class SfxVolumeSlider(Sprite):
+    
     def __init__(self,
                  center_pos, 
                  slider_width: int = 200, 
@@ -305,6 +305,9 @@ class SfxVolumeSlider(Sprite):
                  min_volume: float = 0.0,
                  max_volume: float = 1.0):
         super().__init__()
+        
+        from src.sound import set_sfx_volume
+        self.set_sfx_volume = set_sfx_volume
         
         self.slider_width = slider_width
         self.slider_height = slider_height
@@ -358,7 +361,7 @@ class SfxVolumeSlider(Sprite):
             self.current_volume = (relative_xpos / self.rect.width) * (self.max_volume - self.min_volume) + self.min_volume
             
             self.current_volume = max(self.min_volume, min(self.max_volume, self.current_volume))
-            sound.set_sfx_volume(self.current_volume)
+            self.set_sfx_volume(self.current_volume)
             self.update_handle_pos()
             
         if not mouse_clicked:
@@ -418,15 +421,8 @@ class SettingsScreen:
                                                  }
                                              ])
         
-        self.music_volume_slider = MusicVolumeSlider(center_pos=(screen_width * 0.75, screen_height * 0.5))
-        self.sfx_volume_slider = SfxVolumeSlider(center_pos = (screen_width * 0.75, screen_height * 0.6))
-        
-    def update(self, mouse_pos, mouse_clicked):
-        self.music_volume_slider.update(mouse_pos, mouse_clicked)
-        self.sfx_volume_slider.update(mouse_pos, mouse_clicked)
-        
-    def draw(self, surface):
-        surface.blit(self.music_volume_slider, self.sfx_volume_slider)
+        self.music_volume_slider = MusicVolumeSlider(center_pos=(screen_width / 2, screen_height * 0.615))
+        self.sfx_volume_slider = SfxVolumeSlider(center_pos = (screen_width / 2, screen_height * 0.725))
         
 class GameOverScreen:
     def __init__(self):

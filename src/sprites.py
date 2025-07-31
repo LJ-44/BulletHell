@@ -13,7 +13,7 @@ class GameObject(Sprite):
         self.screen_width = self.screen.get_width()
         self.screen_height = self.screen.get_height()
 
-        self.image = pygame.Surface([width, height]).convert_alpha()
+        self.image = pygame.Surface([width, height]).convert()
         self.image.fill(color)
 
         self.rect = self.image.get_rect()
