@@ -71,7 +71,7 @@ def main():
 
     player_group.add(player_one, player_two)
 
-    # variables
+    # variables / flags
     normal_bullet_spawn_rate = 4 # bullets per second
     homing_bullet_spawn_rate = 1
     exploding_bullet_spawn_rate = 1
@@ -79,6 +79,9 @@ def main():
     frame_count = 0
     player_one_hits = 0
     player_two_hits = 0
+    homing_target = -1
+    exploding_target = -1
+    new_game = False
     
     # initial states
     game_state = GameState.MAIN_MENU
@@ -191,8 +194,11 @@ def main():
             # escape key pauses game
             if player_mode == PlayerMode.ONE_PLAYER:
                 
-                if player_two in player_group:
-                    player_group.remove(player_two)
+                if not new_game:
+                    player_one = sprt.Player1()
+                    player_group.add(player_one)
+                    frame_count = 1
+                    new_game = True
                 
                 if frame_count % math.floor( FPS / normal_bullet_spawn_rate) == 0:
                     normal_bullet = sprt.Bullet()
@@ -217,6 +223,13 @@ def main():
 
             elif player_mode == PlayerMode.TWO_PLAYER: 
                 
+                if not new_game:
+                    player_one = sprt.Player1()
+                    player_two = sprt.Player2()
+                    player_group.add(player_one, player_two)
+                    frame_count = 1
+                    new_game = True
+                
                 # spawn bullets using its spawn rate
                 if frame_count % math.floor( FPS / normal_bullet_spawn_rate) == 0:
                     normal_bullet = sprt.Bullet()
@@ -224,11 +237,19 @@ def main():
                     
                 # TODO: fix below
                 if frame_count % math.floor( FPS / homing_bullet_spawn_rate) == 0:
-                    homing_bullet = sprt.HomingBullet(target=player_one)
+                    homing_target += 1
+                    if homing_target % 2 == 0:
+                        homing_bullet = sprt.HomingBullet(target=player_one)
+                    else:
+                        homing_bullet = sprt.HomingBullet(target=player_two)
                     bullets_group.add(homing_bullet)
                 
                 if frame_count % math.floor( FPS / exploding_bullet_spawn_rate) == 0:
-                    exploding_bullet = sprt.ExplodingBullet(target=player_one)
+                    exploding_target += 1
+                    if exploding_target % 2 == 0:
+                        exploding_bullet = sprt.ExplodingBullet(target=player_one, sprite_group=bullets_group)
+                    else:
+                        exploding_bullet = sprt.ExplodingBullet(target=player_two, sprite_group=bullets_group)
                     bullets_group.add(exploding_bullet)
                 
                 for bullet in bullets_group:
@@ -253,6 +274,9 @@ def main():
                     if action == GameState.GAMEPLAY:
                         game_state = GameState.GAMEPLAY
                     elif action == GameState.MAIN_MENU:
+                        player_group.empty()
+                        bullets_group.empty()
+                        new_game = False
                         game_state = GameState.MAIN_MENU
                     elif action == GameState.QUIT:
                         game_state = GameState.QUIT
