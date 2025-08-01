@@ -58,15 +58,14 @@ def main():
     
     state_manager = state.StateManager()
     
-    
     fullscreen = False
     running = True
     while running:
         
-        screen.fill('blue')
+        screen.fill("black")
     
         pygame.draw.rect(surface=screen,
-                        color='black',
+                        color="red",
                         rect=pygame.Rect((screen.get_width() / 2, screen.get_height() / 2), (10, 10)))
         
         pygame.event.pump()
