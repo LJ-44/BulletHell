@@ -46,12 +46,12 @@ class UIElement(Sprite):
                  highlight_color: Tuple[int, int, int] = (200,0,0),
                  highlight_scale: float = 1.2,
                  action: Optional[Any] = None,
-                 reference_resolution: Tuple[int, int] = (1280, 720)):
+                 reference_resolution: Tuple[int, int] = (1280, 720)): 
         super().__init__()
         
         #visual states
         self.relative_pos = relative_pos
-        self.reference_res = reference_resolution
+        self.reference_res = reference_resolution #TODO: fix reference
         self.base_font_size = base_font_size
         self.text = text
         self.text_color = text_color
@@ -162,7 +162,7 @@ class MainMenu(GameState):
         # Title
         title = UIElement(
             relative_pos=(0.5, 0.3),
-            text="Bullet Hell",
+            text="BULLET HELL",
             base_font_size=50,
             action=None
         ) 
@@ -207,8 +207,6 @@ class GamePlay(GameState):
         
         self.player = sprite.Player()
         self.normal_bullet = sprite.Bullet()
-        self.homing_bullet = sprite.HomingBullet()
-        self.exploding_bullet = sprite.ExplodingBullet()
         self.bullets = Group()
     
     def handle_events(self, events):
@@ -217,33 +215,33 @@ class GamePlay(GameState):
                 return GameStateID.PAUSED
                     
     
-    # def update(self):
+    def update(self):
         
-    #     keys = pygame.key.get_pressed()
-    #     self.player.update(keys)
+        keys = pygame.key.get_pressed()
+        self.player.update(keys)
         
-    #     # use RNG to spawn bullets based on difficulty
-    #     if random.random() < self.get_spawn_rates():
-    #         self.bullets.add(self.normal_bullet)
-    #         self.bullets.add(self.homing_bullet)                  #TODO FIX THIS
-    #         self.bullets.add(self.exploding_bullet)
+        # use RNG to spawn bullets based on difficulty
+        if random.random() < self.get_spawn_rates():
+            self.bullets.add(self.normal_bullet)
+            self.bullets.add(self.homing_bullet)                  #TODO FIX THIS
+            self.bullets.add(self.exploding_bullet)
         
-    #     self.bullets.update()
+        self.bullets.update()
         
-    # def get_spawn_rates(self, 
-    #                     normal: Optional[float], 
-    #                     homing: Optional[float], 
-    #                     exploding: Optional[float]):
+    def get_spawn_rates(self, 
+                        normal: Optional[float], 
+                        homing: Optional[float], 
+                        exploding: Optional[float]):
         
-    #     difficulties = {
-    #         Difficulty.EASY: [normal, homing, exploding],
-    #         Difficulty.MEDIUM: [normal, homing, exploding],
-    #         Difficulty.HARD: [normal, homing, exploding],
-    #         Difficulty.INSANE: [normal, homing, exploding],
-    #         Difficulty.HELL: [normal, homing, exploding]
-    #     }
-    #     difficulty = difficulties.get(self.manager.difficulty, 0.01)
-    #     return difficulty
+        difficulties = {
+            Difficulty.EASY: [normal, homing, exploding],
+            Difficulty.MEDIUM: [normal, homing, exploding],
+            Difficulty.HARD: [normal, homing, exploding],
+            Difficulty.INSANE: [normal, homing, exploding],
+            Difficulty.HELL: [normal, homing, exploding]
+        }
+        difficulty = difficulties.get(self.manager.difficulty, 0.01)
+        return difficulty
         
     def draw(self, screen):
         self.player_one.draw(screen)
@@ -282,8 +280,8 @@ class Settings(GameState):
                 )
             )
         
-        self.music_slider = sprite.MusicVolumeSlider()
-        self.sfx_slider = sprite.SfxVolumeSlider()
+        self.music_slider = sprite.MusicVolumeSlider(center_pos=(self.screen.get_width() * 0.75, self.screen.get_height() * 0.42))
+        self.sfx_slider = sprite.SfxVolumeSlider(center_pos=(self.screen.get_width() * 0.75, self.screen.get_height() * 0.54))
     
     def handle_events(self, events):
         mouse_pos = pygame.mouse.get_pos()

@@ -60,7 +60,7 @@ def main():
     manager = state.StateManager()
     mainmenu = state.MainMenu(manager)
     
-    #fullscreen = False
+    # fullscreen = True
     running = True
     while running:
         
@@ -80,13 +80,12 @@ def main():
                 #     else:
                 #         screen = pygame.display.set_mode((screen.get_width(), screen.get_height()), RESIZABLE)
             elif event.type == VIDEORESIZE:
-                #if not fullscreen:
                 screen = pygame.display.set_mode((event.w, event.h), RESIZABLE)
                 for states in manager.states.values():
-                    if hasattr(state, 'handle_resize'):
-                        state.handle_resize()
+                    if hasattr(states, 'handle_resize'):
+                        states.handle_resize()
                 
-        manager.handle_events(events)
+        running &= manager.handle_events(events)
         manager.update()
         manager.draw(screen)
             
