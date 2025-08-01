@@ -1,12 +1,12 @@
 import pygame
 import pygame.freetype
+import random
+import src.sprites as sprite
 from pygame.locals import *
 from pygame.sprite import Sprite, Group
 from enum import Enum, auto
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple, Union, List, Dict, Any
-import src.sprites as sprite
-
+from typing import Optional, Tuple, Any
 class GameStateID(Enum):
     MAIN_MENU = auto()
     GAMEPLAY = auto()
@@ -58,12 +58,13 @@ class UIElement(Sprite):
         self.highlight_color = highlight_color
         self.highlight_scale = highlight_scale
         self.is_highlighted = False
+        self.is_clickable = True
         self.action = action
         
         self.create_surfaces()
+        self.update_position()
         
-        self.rect = self.normal_surface.get_rect(center=relative_pos)
-        self.is_clickable = True
+        # self.rect = self.normal_surface.get_rect(center=relative_pos)
         ...
         
     def get_scale_factor(self):
@@ -99,6 +100,7 @@ class UIElement(Sprite):
         
     def handle_resize(self):
         self.create_surfaces()
+        self.update_position()
         ...
     
     def update(self, mouse_pos, mouse_up):
@@ -118,7 +120,6 @@ class UIElement(Sprite):
         
     def disable(self):
         self.is_clickable = False
-        self.is_highlighted = False
         self.image = self.normal_surface
         ...
         
@@ -127,7 +128,7 @@ class UIElement(Sprite):
         ...
         
     @property
-    def is_highlighted(self):
+    def _is_highlighted(self):
         return self.is_highlighted and self.is_clickable
 class GameState(ABC):
     
@@ -151,41 +152,34 @@ class MainMenu(GameState):
     def __init__(self, manager):
         super().__init__(manager)
         
-        self.ui_elements = [
-            UIElement(
-                relative_pos=(0.5, 0.3),
-                text="Bullet Hell",
-                base_font_size=50,
-                action=None
-            ),
-            UIElement(
-                relative_pos=(0.5, 0.3),
-                text="ONE PLAYER MODE",
-                base_font_size=30,
-                action=(PlayerMode.ONE_PLAYER, GameStateID.CHOOSE_DIFFICULTY)
-            ),
-            UIElement(
-                relative_pos=(0.5, 0.3),
-                text="TWO PLAYER MODE",
-                base_font_size=30,
-                action=(PlayerMode.TWO_PLAYER, GameStateID.CHOOSE_DIFFICULTY)
-            ),
-            UIElement(
-                relative_pos=(0.5, 0.3),
-                text="SETTINGS",
-                base_font_size=30,
-                action=GameStateID.SETTINGS
-            ),
-            UIElement(
-                relative_pos=(0.5, 0.3),
-                text="EXIT",
-                base_font_size=30,
-                action=GameStateID.QUIT
-            )
+        buttons = [
+            ("ONE PLAYER MODE", (PlayerMode.ONE_PLAYER, GameStateID.CHOOSE_DIFFICULTY)),
+            ("TWO PLAYER MODE", (PlayerMode.TWO_PLAYER, GameStateID.CHOOSE_DIFFICULTY)),
+            ("SETTINGS", GameStateID.SETTINGS),
+            ("QUIT", GameStateID.QUIT)
         ]
         
-        for element in self.ui_elements:
-            self.ui_elements.add(element)
+        # Title
+        title = UIElement(
+            relative_pos=(0.5, 0.3),
+            text="Bullet Hell",
+            base_font_size=50,
+            action=None
+        ) 
+        title.disable()
+        
+        self.ui_elements.add(title)
+        
+        # Buttons
+        for idx, (button_name, action) in enumerate(buttons):
+            self.ui_elements.add(
+                UIElement(
+                    relative_pos=(0.5, 0.4 + idx*0.12),
+                    text=button_name,
+                    base_font_size=30,
+                    action=action
+                )
+            )
     
     def handle_events(self, events):
         mouse_pos = pygame.mouse.get_pos()
@@ -200,33 +194,111 @@ class MainMenu(GameState):
                 return action
         return None
     
-    def update(self): pass 
+    def update(self): pass # could add animations to this later
         
     def draw(self, screen):
         self.ui_elements.draw(screen)
+            
         
 class GamePlay(GameState):
     
     def __init__(self, manager):
         super().__init__(manager)
-    
-    def handle_events(self, events): pass
-    
-    def update(self): pass
         
-    def draw(self, screen): pass
+        self.player = sprite.Player()
+        self.normal_bullet = sprite.Bullet()
+        self.homing_bullet = sprite.HomingBullet()
+        self.exploding_bullet = sprite.ExplodingBullet()
+        self.bullets = Group()
+    
+    def handle_events(self, events):
+        for event in events:
+            if event.type == KEYDOWN and event.button == K_ESCAPE:
+                return GameStateID.PAUSED
+                    
+    
+    # def update(self):
+        
+    #     keys = pygame.key.get_pressed()
+    #     self.player.update(keys)
+        
+    #     # use RNG to spawn bullets based on difficulty
+    #     if random.random() < self.get_spawn_rates():
+    #         self.bullets.add(self.normal_bullet)
+    #         self.bullets.add(self.homing_bullet)                  #TODO FIX THIS
+    #         self.bullets.add(self.exploding_bullet)
+        
+    #     self.bullets.update()
+        
+    # def get_spawn_rates(self, 
+    #                     normal: Optional[float], 
+    #                     homing: Optional[float], 
+    #                     exploding: Optional[float]):
+        
+    #     difficulties = {
+    #         Difficulty.EASY: [normal, homing, exploding],
+    #         Difficulty.MEDIUM: [normal, homing, exploding],
+    #         Difficulty.HARD: [normal, homing, exploding],
+    #         Difficulty.INSANE: [normal, homing, exploding],
+    #         Difficulty.HELL: [normal, homing, exploding]
+    #     }
+    #     difficulty = difficulties.get(self.manager.difficulty, 0.01)
+    #     return difficulty
+        
+    def draw(self, screen):
+        self.player_one.draw(screen)
         
 class Settings(GameState):
     
     def __init__(self, manager):
         super().__init__(manager)
+        
+        buttons = [
+            ("FULLSCREEN", None),
+            ("MUSIC VOLUME", None),
+            ("SFX VOLUME", None),
+            ("BACK TO MAIN MENU", GameStateID.MAIN_MENU),
+        ]
+        
+        title = UIElement(
+            relative_pos=(0.5, 0.3),
+            text="SETTINGS",
+            base_font_size=50,
+            action=None
+            
+        )
+        
+        title.disable()
+        
+        self.ui_elements.add(title)
+        
+        for idx, (button_name, action) in enumerate(buttons):
+            self.ui_elements.add(
+                UIElement(
+                    relative_pos=(0.5, 0.4 + idx*0.12),
+                    text=button_name,
+                    base_font_size=30,
+                    action=action
+                )
+            )
+        
+        self.music_slider = sprite.MusicVolumeSlider()
+        self.sfx_slider = sprite.SfxVolumeSlider()
     
-    def handle_events(self, events): pass
+    def handle_events(self, events):
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_up = any(event.type == pygame.MOUSEBUTTONUP and event.button == 1 for event in events)
+        
+        for element in self.ui_elements:
+            action = element.update(mouse_pos, mouse_up)
+            if action:
+                return action
+        return None
     
     def update(self): pass
         
-    def draw(self, screen): pass
-    ...
+    def draw(self, screen):
+        self.ui_elements.draw(screen)
 class ChooseDifficulty(GameState):
     
     def __init__(self, manager):
@@ -236,8 +308,8 @@ class ChooseDifficulty(GameState):
     
     def update(self): pass
         
-    def draw(self, screen): pass
-    ...
+    def draw(self, screen):
+        self.ui_elements.draw(screen)
 
 class Paused(GameState):
     
@@ -248,8 +320,8 @@ class Paused(GameState):
     
     def update(self): pass
         
-    def draw(self, screen): pass
-    ...
+    def draw(self, screen):
+        self.ui_elements.draw(screen)
 class GameOver(GameState):
     
     def __init__(self, manager):
@@ -259,9 +331,8 @@ class GameOver(GameState):
     
     def update(self): pass
         
-    def draw(self, screen): pass
-    ...
-    
+    def draw(self, screen):
+        self.ui_elements.draw(screen)
 class StateManager:
     def __init__(self):
         self.states = {
@@ -282,6 +353,8 @@ class StateManager:
         
         self.score = 0
         self.lives = 3
+        
+        self.curren_resolution = pygame.display.get_surface().get_size()
     
     def change_state(self, new_state: GameStateID):
         if new_state == GameStateID.QUIT:
@@ -291,13 +364,19 @@ class StateManager:
         return True
         
     def handle_events(self, event):
-        result = self.current_state.handle_events(event)
-        if result:
-            if isinstance(result, tuple):
-                mode, state = result
-                self.player_mode = mode
-                return self.change_state(state)
-            return self.change_state(result)
+        state_change = self.current_state.handle_events(event)
+        if state_change:
+            if isinstance(state_change, tuple):
+                # handle complex transitions (player mode + difficulty)
+                if len(state_change) == 2 and isinstance(state_change[0], PlayerMode):
+                    self.player_mode = state_change[0]
+                    return self.change_state(state_change[1])
+                elif len(state_change) == 2 and isinstance(state_change[0], Difficulty):
+                    self.difficulty = state_change[0]
+                    return self.change_state(state_change[1])
+            else:
+                return self.change_state(state_change)
+        
         return True
     
     def update(self):
@@ -305,6 +384,26 @@ class StateManager:
     
     def draw(self, screen):
         self.current_state.draw(screen)
+        
+    def handle_resize(self, new_size):
+        self.current_resolution = new_size
+        
+        if hasattr(self.current_state, 'ui_elements'):
+            for element in self.current_state.ui_elements:
+                if hasattr(element, 'handle_resize'):
+                    element.handle_resize()
+                    
+        if isinstance(self.current_state, GamePlay):
+            if hasattr(self.current_state, 'player'):
+                self.current_state.player.rect.center = (
+                    new_size[0] // 2,
+                    new_size [1] // 2
+                )
+            if hasattr(self.current_state, 'bullets'):
+                for bullet in self.current_state.bullets:
+                    if hasattr(bullet, 'handle_resize'):
+                        bullet.handle_resize()
+        self.draw()
         
 
 # pygame.init()

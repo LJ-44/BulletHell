@@ -21,7 +21,7 @@ class GameObject(Sprite):
 
     def update(self): pass
 
-class Player1(GameObject):
+class Player(GameObject):
     def __init__(self, 
                  color: str = 'green', 
                  width: float = 10.0, 
@@ -49,35 +49,8 @@ class Player1(GameObject):
         if (self.rect.right > self.screen_width): self.rect.right = self.screen_width
         if (self.rect.bottom > self.screen_height): self.rect.bottom = self.screen_height
         
-class Player2(GameObject):
-    def __init__(self,
-                 color: str = "purple",
-                 width: float = 10.0,
-                 height: float = 10.0,
-                 speed: float = 3.0):
-    
-        # base constructor
-        super().__init__(color=color, width=width, height=height, speed=speed)
-
-        # player spawn: center of screen
-        self.rect.centerx = self.screen_width / 2
-        self.rect.centery = self.screen_height / 2
-
-    def update(self):
-        # Arrow keys to move player2
-        keys = pygame.key.get_pressed()
-
-        if keys[pygame.K_UP]: self.rect.centery -= self.speed
-        if keys[pygame.K_LEFT]: self.rect.centerx -= self.speed
-        if keys[pygame.K_DOWN]: self.rect.centery += self.speed
-        if keys[pygame.K_RIGHT]: self.rect.centerx += self.speed
-
-        # restrict player to confines of display edges
-        if (self.rect.top < 0): self.rect.top = 0
-        if (self.rect.left < 0): self.rect.left = 0
-        if (self.rect.right > self.screen_width): self.rect.right = self.screen_width
-        if (self.rect.bottom > self.screen_height): self.rect.bottom = self.screen_height
-
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
 
 class Bullet(GameObject):
     def __init__(self, 
@@ -380,6 +353,159 @@ class ExplosionShrapnel(GameObject):
             self.rect.right > self.screen_width or
             self.rect.top < 0 or
             self.rect.bottom > self.screen_height): self.kill()
-        ...
+class MusicVolumeSlider(Sprite):
+    def __init__(self,
+                 center_pos, 
+                 slider_width: int = 200, 
+                 slider_height: int = 20, 
+                 handle_width: int = 10, 
+                 handle_height:int = 30, 
+                 current_volume: float = 0.5,
+                 min_volume: float = 0.0,
+                 max_volume: float = 1.0):
+        super().__init__()
+        
+        self.slider_width = slider_width
+        self.slider_height = slider_height
+        self.handle_width = handle_width
+        self.handle_height = handle_height
+        self.current_volume = current_volume
+        self.min_volume = min_volume
+        self.max_volume = max_volume
+        self.dragging_slider = False
+        
+        self.slider = pygame.Surface((slider_width, slider_height))
+        self.slider.fill((200,0,0))
+        
+        self.handle = pygame.Surface((handle_width, handle_height))
+        self.handle.fill((255,0,0))
+        
+        self.image = pygame.Surface((slider_width, handle_height)).convert_alpha()
+        self.image.blit(self.slider, (0, (handle_height - slider_height) // 2))
+        
+        self.update_handle_pos()
+        
+        self.rect = self.image.get_rect(center=center_pos)
+        
+    def update_handle_pos(self):
+        handle_xpos = int((self.current_volume - self.min_volume) / 
+                          (self.max_volume - self.min_volume) * 
+                          (self.slider_width - self.handle_width))
+        
+        self.image.fill((0,0,0,0))
+        self.image.blit(self.slider, (0, (self.handle_height - self.slider_height) // 2))
+        self.image.blit(self.handle, (handle_xpos, 0))
+        
+    def update(self, mouse_pos, mouse_clicked):
+        
+        if not self.dragging_slider and mouse_clicked:
+            
+            handle_xpos = int((self.current_volume - self.min_volume) / 
+                          (self.max_volume - self.min_volume) * 
+                          (self.rect.width - self.handle_width))
+            
+            handle_rect = pygame.Rect(self.rect.x + handle_xpos,
+                                  self.rect.y,
+                                  self.handle_width,
+                                  self.handle_height)
+            
+            if handle_rect.collidepoint(mouse_pos):
+                self.dragging_slider = True
+            ...
+        if self.dragging_slider:
+            relative_xpos = mouse_pos[0] - self.rect.x
+            self.current_volume = (relative_xpos / self.rect.width) * (self.max_volume - self.min_volume) + self.min_volume
+            
+            self.current_volume = max(self.min_volume, min(self.max_volume, self.current_volume))
+            pygame.mixer.music.set_volume(self.current_volume)
+            self.update_handle_pos()
+            
+        if not mouse_clicked:
+            self.dragging_slider = False
+        
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+        
+    def get_volume(self):
+        return int(self.current_volume * 100)
+class SfxVolumeSlider(Sprite):
+    
+    def __init__(self,
+                 center_pos, 
+                 slider_width: int = 200, 
+                 slider_height: int = 20, 
+                 handle_width: int = 10, 
+                 handle_height:int = 30, 
+                 current_volume: float = 0.5,
+                 min_volume: float = 0.0,
+                 max_volume: float = 1.0):
+        super().__init__()
+        
+        from src.sound import set_sfx_volume
+        self.set_sfx_volume = set_sfx_volume
+        
+        self.slider_width = slider_width
+        self.slider_height = slider_height
+        self.handle_width = handle_width
+        self.handle_height = handle_height
+        self.current_volume = current_volume
+        self.min_volume = min_volume
+        self.max_volume = max_volume
+        self.dragging_slider = False
+        
+        self.slider = pygame.Surface((slider_width, slider_height))
+        self.slider.fill((200,0,0))
+        
+        self.handle = pygame.Surface((handle_width, handle_height))
+        self.handle.fill((255,0,0))
+        
+        self.image = pygame.Surface((slider_width, handle_height)).convert_alpha()
+        self.image.blit(self.slider, (0, (handle_height - slider_height) // 2))
+        
+        self.update_handle_pos()
+        
+        self.rect = self.image.get_rect(center=center_pos)
+        
+    def update_handle_pos(self):
+        handle_xpos = int((self.current_volume - self.min_volume) / 
+                          (self.max_volume - self.min_volume) * 
+                          (self.slider_width - self.handle_width))
+        
+        self.image.fill((0,0,0,0))
+        self.image.blit(self.slider, (0, (self.handle_height - self.slider_height) // 2))
+        self.image.blit(self.handle, (handle_xpos, 0))
+        
+    def update(self, mouse_pos, mouse_clicked):
+        
+        if not self.dragging_slider and mouse_clicked:
+            
+            handle_xpos = int((self.current_volume - self.min_volume) / 
+                          (self.max_volume - self.min_volume) * 
+                          (self.rect.width - self.handle_width))
+            
+            handle_rect = pygame.Rect(self.rect.x + handle_xpos,
+                                  self.rect.y,
+                                  self.handle_width,
+                                  self.handle_height)
+            
+            if handle_rect.collidepoint(mouse_pos):
+                self.dragging_slider = True
+            ...
+        if self.dragging_slider:
+            relative_xpos = mouse_pos[0] - self.rect.x
+            self.current_volume = (relative_xpos / self.rect.width) * (self.max_volume - self.min_volume) + self.min_volume
+            
+            self.current_volume = max(self.min_volume, min(self.max_volume, self.current_volume))
+            self.set_sfx_volume(self.current_volume)
+            self.update_handle_pos()
+            
+        if not mouse_clicked:
+            self.dragging_slider = False
+        
+    def draw(self, surface):
+        surface.blit(self.image, self.rect) 
+        
+    def get_volume(self):
+        return int(self.current_volume * 100)
         
         

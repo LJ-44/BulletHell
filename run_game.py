@@ -56,36 +56,39 @@ def main():
     pygame.display.set_caption("Bullet Hell")
     clock = pygame.time.Clock()
     
-    state_manager = state.StateManager()
     
-    fullscreen = False
+    manager = state.StateManager()
+    mainmenu = state.MainMenu(manager)
+    
+    #fullscreen = False
     running = True
     while running:
         
         screen.fill("black")
-    
-        pygame.draw.rect(surface=screen,
-                        color="red",
-                        rect=pygame.Rect((screen.get_width() / 2, screen.get_height() / 2), (10, 10)))
         
-        pygame.event.pump()
-        event = pygame.event.wait()
-        if event.type == QUIT:
-            running = False
-        elif event.type == KEYDOWN:
-            if event.key == K_ESCAPE:
+        events = pygame.event.get()
+        for event in events:
+            if event.type == QUIT:
                 running = False
-            elif event.key == K_f:
-                fullscreen = not fullscreen
-                if fullscreen:
-                    screen = pygame.display.set_mode(monitor_size, FULLSCREEN)
-                else:
-                    screen = pygame.display.set_mode((screen.get_width(), screen.get_height()), RESIZABLE)
-        elif event.type == VIDEORESIZE:
-            if not fullscreen:
+            elif event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    running = False
+                # elif event.key == K_f:
+                #     fullscreen = not fullscreen
+                #     if fullscreen:
+                #         screen = pygame.display.set_mode(monitor_size, FULLSCREEN)
+                #     else:
+                #         screen = pygame.display.set_mode((screen.get_width(), screen.get_height()), RESIZABLE)
+            elif event.type == VIDEORESIZE:
+                #if not fullscreen:
                 screen = pygame.display.set_mode((event.w, event.h), RESIZABLE)
+                for states in manager.states.values():
+                    if hasattr(state, 'handle_resize'):
+                        state.handle_resize()
                 
-        
+        manager.handle_events(events)
+        manager.update()
+        manager.draw(screen)
             
         pygame.display.update()
         clock.tick(FPS)
