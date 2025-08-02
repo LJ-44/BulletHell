@@ -1,0 +1,14 @@
+{
+    "button":
+    {
+        "colors":{
+            "normal_border": "Red",
+            "normal_bg": "Black",
+            "normal_text": "Red"
+        },
+        "font":{
+            "name": "Bullet_Hell",
+            "size": "12"
+        }
+    }
+}
