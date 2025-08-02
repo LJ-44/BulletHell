@@ -1,38 +1,37 @@
 import pygame
-import pygame_gui
-from pygame.locals import *
+import pygame_gui as GUI
 
+pygame.init()
 
+pygame.display.set_caption('Quick Start')
+screen = pygame.display.set_mode((800, 600))
 
-def main():
-    # constants
-    FPS = 60
+background = pygame.Surface((800, 600))
+background.fill(pygame.Color("#000000"))
+
+manager = GUI.UIManager((800, 600))
+
+button = GUI.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100,50)),
+                               text="Hello",
+                               manager=manager)
+
+clock = pygame.time.Clock()
+running = True
+while running:
+    dt = clock.tick(60)/1000.0
     
-    # display
-    pygame.mixer.pre_init()
-    pygame.mixer.init()
-    sound.play_music()
-    pygame.init()
-    monitor_size = [pygame.display.Info().current_w, pygame.display.Info().current_h]
-    screen = pygame.display.set_mode(size=(1280, 720), flags=RESIZABLE)
-    pygame.display.set_caption("Bullet Hell")
-    clock = pygame.time.Clock()
-    
-    manager = pygame_gui.UIManager()
-
-    running = True
-    while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        manager.process_events(event)
         
-        screen.fill("black")
+        if event.type == GUI.UI_BUTTON_PRESSED:
+            if event.ui_element == button:
+                print("Hello")
         
-        events = pygame.event.get()
-        for event in events:
-            if event.type == QUIT:
-                running = False
-            
-        pygame.display.update()
-        clock.tick(FPS)
+    manager.update(dt)
 
-    pygame.quit()
+    screen.blit(background, (0, 0))
+    manager.draw_ui(screen)
 
-if __name__ == '__main__': main()
+    pygame.display.update()
