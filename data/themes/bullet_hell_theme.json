@@ -1,14 +1,38 @@
 {
-    "button":
+    "defaults":
     {
-        "colors":{
-            "normal_border": "Red",
-            "normal_bg": "Black",
-            "normal_text": "Red"
+        "colours":{
+            "normal_text": "#C71E1E",
+            "hovered_text": "#FF2C00",
+            "active_text": "#C71E1E",
+            "normal_bg": "#000000",
+            "hovered_bg": "#000000",
+            "disabled_bg": "#000000",
+            "selected_bg": "#000000",
+            "active_bg": "#000000",
+            "normal_border": "#FF2C00",
+            "hovered_border": "#FF2C00",
+            "disabled_border": "#FF2C00",
+            "selected_border": "#FF2C00",
+            "active_border": "#FF2C00"
         },
         "font":{
-            "name": "Bullet_Hell",
-            "size": "12"
+            "name": "bullethell",
+            "size": "30",
+            "regular_resource": { "package": "data.fonts", "resource": "BulletHell_font.ttf"}
+        }
+    },
+
+    "@titles":
+    {
+        "font":{
+
+        }
+    },
+    "@buttons":
+    {
+        "font":{
+            
         }
     }
 }

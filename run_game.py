@@ -1,46 +1,73 @@
-import pygame
-import pygame_gui as GUI
-from pygame_gui.elements import UIButton, UITextBox
-from pygame.locals import *
+from GUI import *
 
-pygame.init()
-
-pygame.display.set_caption('Quick Start')
-monitor_size = [pygame.display.Info().current_w, pygame.display.Info().current_h]
-screen = pygame.display.set_mode((800, 600))
-
-background = pygame.Surface((800, 600))
-background.fill(pygame.Color("#000000"))
-
-manager = GUI.UIManager((800, 600), theme_path="data/themes/bullet_hell_theme.json")
-manager.add_font_paths(font_name="Bullet_Hell", regular_path="assets/font/BulletHell_font.ttf")
-
-button = UIButton(relative_rect=pygame.Rect((350, 275), (100,50)),
-                               text="Hello",
-                               manager=manager,)
-title = UITextBox(relative_rect=pygame.Rect((250, 175), (100,50)), 
-                  html_text="BULLET HELL", 
-                  manager=manager)
-
-title.set_active_effect(GUI.TEXT_EFFECT_FADE_IN)
-
-clock = pygame.time.Clock()
-running = True
-while running:
-    dt = clock.tick(60)/1000.0
+class BulletHell:
+    def __init__(self):
+        pygame.mixer.pre_init()
+        pygame.mixer.init()
+        sound.play_music()
+        pygame.init()
+        pygame.display.set_caption("Bullet Hell")
+        self.resolutions = Resolution()
+        if self.resolutions.fullscreen:
+            self.window_surface = pygame.display.set_mode(self.resolutions.resolution, FULLSCREEN)
+        else:
+            self.window_surface = pygame.display.set_mode(self.resolutions.resolution)
+            
+        self.ui_manager = UIManager(self.resolutions.resolution,
+                                    theme_path="data/themes/bullet_hell_theme.json")
+        
+        self.game_state = MAINMENU
+        self.player_mode = None
+        self.difficulty = None
+        
+        self.player = Player()
+        self.bullet = Bullet()
+        self.homing_bullet = HomingBullet()
+        self.exploding_bullet = ExplodingBullet()
+        
+        self.players = Group()
+        self.bullets = Group()
+        
+        self.music_volume_slider = UIHorizontalSlider(pygame.Rect((int(self.rect.width / 2),
+                                                           int(self.rect.height * 0.70)),
+                                                          (240, 25)),
+                                              50.0,
+                                              (0.0, 100.0),
+                                              self.ui_manager,
+                                              container=self,
+                                              click_increment=5)
+        
+            
+    def check_resolution_changed(self):
+        
+        ...
     
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        manager.process_events(event)
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+            if event.type == pygame.KEYDOWN:
+                if event.button == pygame.K_ESCAPE:
+                    self.running = False
+            
+            
         
-        if event.type == GUI.UI_BUTTON_PRESSED:
-            if event.ui_element == button:
-                print("Hello")
         
-    manager.update(dt)
-
-    screen.blit(background, (0, 0))
-    manager.draw_ui(screen)
-
-    pygame.display.update()
+        ...
+        
+    def run(self):
+        while self.running:
+            dt = self.clock.tick(60) / 1000.0
+            
+            self.handle_events()
+            
+            self.ui_manager.update(dt)
+            
+            self.ui_manager.draw_ui(self.window_surface)
+            
+            pygame.display.update()
+        ...
+    
+if __name__ == "__main__":
+    game = BulletHell()
+    game.run()
