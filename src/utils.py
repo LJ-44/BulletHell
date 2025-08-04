@@ -5,7 +5,7 @@ BASE_IMG_PATH = "assets/images/"
 
 def load_image(path):
     img = pygame.image.load(file=(BASE_IMG_PATH + path)).convert()
-    img.set_colorkey((0,0,0))
+    img.set_colorkey("#FFFFFF")
     return img
 
 def load_images(path):
@@ -23,6 +23,9 @@ class Animation:
         self.done = False
         self.game_frame = 0
         
+    def copy(self):
+        return Animation(self.images, self.image_duration, self.loop)
+        
     def update(self):
         if self.loop:
             self.game_frame = (self.game_frame + 1) % (self.image_duration * len(self.images))
@@ -30,3 +33,6 @@ class Animation:
             self.game_frame = min(self.game_frame + 1, self.image_duration * len(self.images) - 1)
             if self.game_frame >= self.image_duration * len(self.images) - 1:
                 self.done = True
+                
+    def img(self):
+        return self.images[int(self.game_frame / self.image_duration)]
