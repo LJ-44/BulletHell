@@ -21,7 +21,6 @@ class Entity:
         self.collision = False
         
         self.action = ''
-        self.animation_offset = (-3, -3)
         self.flip = False
         #self.set_action("idle")
         
@@ -49,7 +48,7 @@ class Entity:
     def render(self, surface):
         surface.blit(
             pygame.transform.flip(surface=self.animation.img(), flip_x=self.flip, flip_y=False), 
-            (self.pos[0] + self.animation_offset[0], self.pos[1] + self.animation_offset[1])
+            (self.pos[0], self.pos[1])
         )
         
 class Player(Entity):
@@ -60,6 +59,27 @@ class Player(Entity):
         
     def update(self, movement=(0,0)):
         super().update(movement)
+        
+    def render(self, surface):
+        
+        animated_image = pygame.transform.flip(surface=self.animation.img(), flip_x=self.flip, flip_y=False)
+        
+        surface.blit(
+            pygame.transform.scale(surface=animated_image, size=(self.size[0] * 3, self.size[1] * 3)), 
+            (self.pos[0], self.pos[1])
+        )
+        
+class Background(Entity):
+    def __init__(self, game, pos, size):
+        super().__init__(game, "background_animated", pos, size)
+        
+        self.set_action("background_animated")
+        
+    def render(self, surface: Surface):
+        surface.blit(
+            source=pygame.transform.scale(surface=self.animation.img(), size=surface.get_size()),
+            dest=(0,0)
+        )
             
         
         
