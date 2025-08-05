@@ -12,6 +12,7 @@ class Entity:
                  pos: Tuple[int, int], 
                  size: Tuple[int, int]):
         
+        self.screen = pygame.display.get_surface()
         self.game = game
         self.type = type
         self.pos = list(pos)
@@ -22,7 +23,7 @@ class Entity:
         self.action = ''
         self.animation_offset = (-3, -3)
         self.flip = False
-        self.set_action("idle")
+        #self.set_action("idle")
         
     def rect(self):
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
@@ -55,16 +56,17 @@ class Player(Entity):
     def __init__(self, game, pos, size):
         super().__init__(game, "player", pos, size)
         
+        self.animation_offset = (-10, -10)
+        
+        self.set_action("idle")
+        
+        
         
     def update(self, movement=(0,0)):
         super().update(movement)
-                
         
-class Bullet(Entity):
-    def __init__(self, game, pos, size):
-        super().__init__(game, "bullet", pos, size)
+        print(self.action)
         
-    def update(self, movement=(0,0)):
-        super().update(movement)
+        
         
         
