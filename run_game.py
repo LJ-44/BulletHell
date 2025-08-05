@@ -56,7 +56,7 @@ class BulletHell:
                         self.player_movement[1] = True
                     if event.key == pygame.K_f:
                         if self.player.action != "slash" or self.player.animation.done:
-                            self.player.set_action("slash")
+                            self.player.slash()
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_w:
                         self.player_movement[2] = False

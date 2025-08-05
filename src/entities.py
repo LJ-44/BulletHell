@@ -55,17 +55,15 @@ class Entity:
 class Player(Entity):
     def __init__(self, game, pos, size):
         super().__init__(game, "player", pos, size)
-        
-        self.animation_offset = (-10, -10)
-        
+
         self.set_action("idle")
         
-        
+    def slash(self):
+        self.set_action("slash")
         
     def update(self, movement=(0,0)):
         super().update(movement)
-        
-        print(self.action)
+            
         
         
         
