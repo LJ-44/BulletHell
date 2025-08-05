@@ -58,9 +58,6 @@ class Player(Entity):
 
         self.set_action("idle")
         
-    def slash(self):
-        self.set_action("slash")
-        
     def update(self, movement=(0,0)):
         super().update(movement)
             

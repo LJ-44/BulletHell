@@ -28,7 +28,7 @@ class BulletHell:
         # movement bools: [left, right, up, down] 
         self.slash = False
         self.player_movement = [False, False, False, False]
-        self.player = Player(self, pos=(self.display.get_width() / 2, self.display.get_height() / 2), size=(40, 40))
+        self.player = Player(self, pos=(self.display.get_width() / 2, self.display.get_height() / 2), size=(18, 12))
         
     def run(self):
         while self.running:
@@ -56,7 +56,7 @@ class BulletHell:
                         self.player_movement[1] = True
                     if event.key == pygame.K_f:
                         if self.player.action != "slash" or self.player.animation.done:
-                            self.player.slash()
+                            self.player.set_action("slash")
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_w:
                         self.player_movement[2] = False
