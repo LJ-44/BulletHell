@@ -1,10 +1,5 @@
 import pygame
-import random
-import os
-from pygame.sprite import Sprite, Group
-from pygame import Surface
-import pygame_gui
-from typing import Optional, Any, Tuple
+from typing import Tuple
 class Entity:
     def __init__(self,
                  game,
