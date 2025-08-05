@@ -68,20 +68,3 @@ class Player(Entity):
             pygame.transform.scale(surface=animated_image, size=(self.size[0] * 3, self.size[1] * 3)), 
             (self.pos[0], self.pos[1])
         )
-        
-class Background(Entity):
-    def __init__(self, game, pos, size):
-        super().__init__(game, "background_animated", pos, size)
-        
-        self.set_action("background_animated")
-        
-    def render(self, surface: Surface):
-        surface.blit(
-            source=pygame.transform.scale(surface=self.animation.img(), size=surface.get_size()),
-            dest=(0,0)
-        )
-            
-        
-        
-        
-        

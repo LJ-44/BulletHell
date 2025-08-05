@@ -13,8 +13,8 @@ class BulletHell:
         self.running = True
         
         self.assets = {
-            "background111": load_image(path="background/background_1.png"),
-            "background/background": Animation(images=load_images(path="background"), image_duration=7, loop=True),
+            "background": load_image(path="background/background_1.png"),
+            #"background/background": Animation(images=load_images(path="background"), image_duration=7, loop=True),
             "player": load_image(path="entities/player/player.png"),
             "bullets": load_images(path="entities/bullets"),
             "bullet_left": load_image(path="entities/bullets/bullet_left.png"),
@@ -29,54 +29,55 @@ class BulletHell:
         self.slash = False
         self.player_movement = [False, False, False, False]
         self.player = Player(self, pos=(self.display.get_width() / 2, self.display.get_height() / 2), size=(26, 12))
-        self.background_animated = Background(self, pos=(0,0), size=self.display.get_size())
         
     def run(self):
         while self.running:
             
-            #self.display.blit(self.assets["background"], (0,0))
-            self.background_animated.render(self.display)
+            self.display.blit(self.assets["background"], (0,0))
             
-            # player_move_x = self.player_movement[1] - self.player_movement[0]
-            # player_move_y = self.player_movement[3] - self.player_movement[2]
+            player_move_x = self.player_movement[1] - self.player_movement[0]
+            player_move_y = self.player_movement[3] - self.player_movement[2]
             
-            # self.player.update((player_move_x, player_move_y))
-            # self.player.render(self.display)
+            self.player.update((player_move_x, player_move_y))
+            self.player.render(self.display)
             
-            # events = pygame.event.get()
-            # for event in events:
-            #     if event.type == pygame.QUIT:
-            #         self.running = False
-            #     if event.type == pygame.KEYDOWN:
-            #         if event.key == pygame.K_w:
-            #             self.player_movement[2] = True
-            #         if event.key == pygame.K_a:
-            #             self.player_movement[0] = True
-            #         if event.key == pygame.K_s:
-            #             self.player_movement[3] = True
-            #         if event.key == pygame.K_d:
-            #             self.player_movement[1] = True
-            #         if event.key == pygame.K_f:
-            #             if self.player.action != "slash" or self.player.animation.done:
-            #                 self.player.set_action("slash")
-            #     if event.type == pygame.KEYUP:
-            #         if event.key == pygame.K_w:
-            #             self.player_movement[2] = False
-            #         if event.key == pygame.K_a:
-            #             self.player_movement[0] = False
-            #         if event.key == pygame.K_s:
-            #             self.player_movement[3] = False
-            #         if event.key == pygame.K_d:
-            #             self.player_movement[1] = False
+            events = pygame.event.get()
+            for event in events:
+                if event.type == pygame.QUIT:
+                    self.running = False
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if self.player.action != "slash" or self.player.animation.done:
+                            self.player.set_action("slash")
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_w:
+                        self.player_movement[2] = True
+                    if event.key == pygame.K_a:
+                        self.player_movement[0] = True
+                    if event.key == pygame.K_s:
+                        self.player_movement[3] = True
+                    if event.key == pygame.K_d:
+                        self.player_movement[1] = True
+                    # if event.key == pygame.K_f:
+                    #     if self.player.action != "slash" or self.player.animation.done:
+                    #         self.player.set_action("slash")
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_w:
+                        self.player_movement[2] = False
+                    if event.key == pygame.K_a:
+                        self.player_movement[0] = False
+                    if event.key == pygame.K_s:
+                        self.player_movement[3] = False
+                    if event.key == pygame.K_d:
+                        self.player_movement[1] = False
                         
-            # if not hasattr(self.player, 'animation') or self.player.animation.done or self.player.animation.loop:
-            #     if player_move_x != 0 or player_move_y != 0:
-            #         length = (player_move_x ** 2 + player_move_y ** 2) ** 0.5
-            #         player_move_x /= length
-            #         player_move_y /= length
-            #         self.player.set_action("walk")
-            #     else:
-            #         self.player.set_action("idle")
+            if not hasattr(self.player, 'animation') or self.player.animation.done or self.player.animation.loop:
+                if player_move_x != 0 or player_move_y != 0:
+                    length = (player_move_x ** 2 + player_move_y ** 2) ** 0.5
+                    player_move_x /= length
+                    player_move_y /= length
+                    self.player.set_action("walk")
+                else:
+                    self.player.set_action("idle")
             
             self.screen.blit(pygame.transform.scale(surface=self.display, size=self.screen.get_size()))
             
