@@ -27,7 +27,7 @@ def set_sfx_volume(volume):
         sound.set_volume(volume)
 
 
-def play_music(path=theme, volume=0.5):
+def play_music(path=theme, volume=0.35):
     pygame.mixer.music.load(path)
     pygame.mixer.music.set_volume(volume)
     pygame.mixer.music.play(-1) # loop music

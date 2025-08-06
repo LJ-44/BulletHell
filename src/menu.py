@@ -31,12 +31,18 @@ class UIElement(Sprite):
     @property
     def image(self):
         # highlight element if mouse over
-        return self.images[1] if self.mouse_over else self.images[0]
-    
+        if len(self.images) == 2:
+            return self.images[1] if self.mouse_over else self.images[0]
+        else:
+            return self.images[0]
+        
     @property
     def rect(self):
         # highlight element if mouse over
-        return self.rects[1] if self.mouse_over else self.rects[0]
+        if len(self.rects) == 2:
+            return self.rects[1] if self.mouse_over else self.rects[0]
+        else:
+            return self.rects[0]
     
     def update(self, mouse_pos, mouse_up):
         if self.rect.collidepoint(mouse_pos):
@@ -50,35 +56,39 @@ class UIElement(Sprite):
         surface.blit(self.image, self.rect)
         
 def build_ui_elements(screen: pygame.Surface, 
-                      spaced_ui_specs: list[dict[str, Any]],
                       title_card: Optional[UIElement] = None, 
+                      spaced_ui_specs: Optional[list[dict[str, Any]]] = None,
                       other_ui_specs: Optional[list[dict[str, Any]]] = None
                       ) -> list[UIElement]:
     
     screen_height = screen.get_height()
     screen_center_x = screen.get_width() / 2
+    
+    title_card.images.pop()
+    title_card.rects.pop()
 
     elements = [title_card]
     
     top_button_y = screen_height * 0.45
-    ui_element_spacing = 40 # pixels
+    ui_element_spacing = 65 # pixels
     
-    for idx, spaced_specs in enumerate(spaced_ui_specs):
-            spaced_uielement_pos = (screen_center_x, top_button_y + (idx * ui_element_spacing))
-            
-            spaced_ui_element = UIElement(
-                center_position=spaced_uielement_pos,
-                font_size=30,
-                text_rgb=(255,0,0),
-                **spaced_specs
-            )
-            elements.append(spaced_ui_element)
+    if spaced_ui_specs is not None:
+        for idx, spaced_specs in enumerate(spaced_ui_specs):
+                spaced_uielement_pos = (screen_center_x, top_button_y + (idx * ui_element_spacing))
+                
+                spaced_ui_element = UIElement(
+                    center_position=spaced_uielement_pos,
+                    font_size=50,
+                    text_rgb=(255,0,0),
+                    **spaced_specs
+                )
+                elements.append(spaced_ui_element)
 
     if other_ui_specs is not None:
         for idx, other_specs in enumerate(other_ui_specs):
             
             other_ui_element = UIElement(
-                font_size=30,
+                font_size=50,
                 text_rgb=(255,0,0),
                 **other_specs
             )
@@ -113,16 +123,16 @@ class MainMenu:
         screen_height = screen.get_height()
         screen_center_x = screen.get_width() / 2
         
-        self.title_card = UIElement(
+        title_card = UIElement(
             center_position=(screen_center_x, screen_height * 0.25),
             text="BULLET HELL",
             text_rgb=(255,0,0),
-            font_size=75,
+            font_size=100,
             action=None
         )
         
         self.ui_elements = build_ui_elements(screen=screen, 
-                                             title_card=self.title_card, 
+                                             title_card=title_card, 
                                              spaced_ui_specs=[
             {
                 "text":"ONE PLAYER MODE",
@@ -151,16 +161,16 @@ class PauseScreen:
 
         title_position = (screen_center_x, screen_height * 0.25)
         
-        self.paused_title = UIElement(
+        title_card = UIElement(
             center_position=(title_position),
             text="GAME PAUSED",
             text_rgb=(255,0,0),
-            font_size=50,
+            font_size=100,
             action=None
         )
         
         self.ui_elements = build_ui_elements(screen=screen,
-                                             title_card=self.paused_title,
+                                             title_card=title_card,
                                              spaced_ui_specs=[
                 {
                     "text":"CONTINUE",
@@ -185,16 +195,16 @@ class DifficultyScreen:
         
         title_position = (screen_center_x, screen_height * 0.25)
         
-        self.title_card = UIElement(
+        title_card = UIElement(
             center_position=(title_position),
             text="CHOOSE DIFFICULTY",
             text_rgb=(255,0,0),
-            font_size=50,
+            font_size=100,
             action=None
         )
         
         self.ui_elements = build_ui_elements(screen=screen,
-                                        title_card=self.title_card,
+                                        title_card=title_card,
                                         spaced_ui_specs=[
                 {
                     "text":"EASY",
@@ -221,10 +231,10 @@ class DifficultyScreen:
 class MusicVolumeSlider(Sprite):
     def __init__(self,
                  center_pos, 
-                 slider_width: int = 200, 
-                 slider_height: int = 20, 
-                 handle_width: int = 10, 
-                 handle_height:int = 30, 
+                 slider_width: int = 250, 
+                 slider_height: int = 25, 
+                 handle_width: int = 12, 
+                 handle_height:int = 35, 
                  current_volume: float = 0.5,
                  min_volume: float = 0.0,
                  max_volume: float = 1.0):
@@ -297,10 +307,10 @@ class SfxVolumeSlider(Sprite):
     
     def __init__(self,
                  center_pos, 
-                 slider_width: int = 200, 
-                 slider_height: int = 20, 
-                 handle_width: int = 10, 
-                 handle_height:int = 30, 
+                 slider_width: int = 250, 
+                 slider_height: int = 25, 
+                 handle_width: int = 12, 
+                 handle_height:int = 35, 
                  current_volume: float = 0.5,
                  min_volume: float = 0.0,
                  max_volume: float = 1.0):
@@ -383,36 +393,26 @@ class SettingsScreen:
 
         title_position = (screen_center_x, screen_height * 0.25)
 
-        self.title_card = UIElement(
+        title_card = UIElement(
             center_position=(title_position),
             text="SETTINGS",
             text_rgb=(255,0,0),
-            font_size=50,
+            font_size=100,
             action=None
         )
 
         self.ui_elements = build_ui_elements(screen=screen,
-                                             title_card=self.title_card,
-                                             spaced_ui_specs=[
-                                                 {
-                                                     "text": "Full Screen",
-                                                     "action": None #TODO: figure this out
-                                                 },
-                                                 {
-                                                     "text": "Windowed",
-                                                     "action": None #TODO: figure this out
-                                                 },
-                                             ],
+                                             title_card=title_card,
                                              other_ui_specs=[
                                                  {   
-                                                     "center_position": (screen_width / 2 , screen_height * 0.56),
+                                                     "center_position": (screen_width / 2 , screen_height * 0.45),
                                                      "text": "Music Volume",
-                                                     "action": None #TODO: figure this out
+                                                     "action": None
                                                  },
                                                  {
-                                                     "center_position": (screen_width / 2 , screen_height * 0.67),
+                                                     "center_position": (screen_width / 2 , screen_height * 0.56),
                                                      "text": "Sfx Volume",
-                                                     "action": None #TODO: figure this out
+                                                     "action": None
                                                  },
                                                  {
                                                      "center_position": (screen_width * 0.13 , screen_height * 0.94),
@@ -421,8 +421,8 @@ class SettingsScreen:
                                                  }
                                              ])
         
-        self.music_volume_slider = MusicVolumeSlider(center_pos=(screen_width / 2, screen_height * 0.615))
-        self.sfx_volume_slider = SfxVolumeSlider(center_pos = (screen_width / 2, screen_height * 0.725))
+        self.music_volume_slider = MusicVolumeSlider(center_pos=(screen_width / 2, screen_height * 0.505))
+        self.sfx_volume_slider = SfxVolumeSlider(center_pos = (screen_width / 2, screen_height * 0.615))
         
 class GameOverScreen:
     def __init__(self):
@@ -432,19 +432,20 @@ class GameOverScreen:
         
         title_position = (screen_center_x, screen_height * 0.25)
         
-        self.title_card = UIElement(
+        title_card = UIElement(
             center_position=(title_position),
             text="GAME OVER",
-            font_size=50,
+            font_size=100,
             text_rgb=(255,0,0),
             action=None
         )
         
         self.ui_elements = build_ui_elements(screen=screen,
+                                             title_card=title_card,
                                              spaced_ui_specs=[
                                                  {
                                                      "text":"TRY AGAIN?",
-                                                     "action": PlayerMode.ONE_PLAYER #TODO: fix for two player
+                                                     "action": GameState.MAIN_MENU
                                                  },
                                                  {
                                                      "text":"MAIN MENU",

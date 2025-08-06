@@ -49,7 +49,7 @@ def main():
     pygame.mixer.init()
     sound.play_music()
     pygame.init()
-    resolution = (1280, 720)
+    resolution = (1920, 1080)
     screen = pygame.display.set_mode(size=resolution)
     pygame.display.set_caption("Bullet Hell")
     clock = pygame.time.Clock()
@@ -73,7 +73,8 @@ def main():
     normal_bullet_spawn_rate = 4 # bullets per second
     homing_bullet_spawn_rate = 1
     exploding_bullet_spawn_rate = 1
-    lives = 3
+    player_one_lives = 3
+    player_two_lives = 3
     frame_count = 0
     player_one_hits = 0
     player_two_hits = 0
@@ -193,6 +194,8 @@ def main():
             if player_mode == PlayerMode.ONE_PLAYER:
                 
                 if not new_game:
+                    if player_two in player_group:
+                        player_group.remove(player_two)
                     player_one = sprt.Player1()
                     player_group.add(player_one)
                     frame_count = 1
@@ -213,8 +216,15 @@ def main():
                 for bullet in bullets_group:
                     if (pygame.sprite.collide_rect(player_one, bullet) and not getattr(bullet, 'hit_player_one', False)):
                         player_one_hits += 1
+                        player_one_lives -= 1
                         bullet.hit_player_one = True
                         print(f'Player One Hits: {player_one_hits}')
+                        print(f'Player One Lives: {player_one_lives}')
+                        
+                if player_one_lives == 0:
+                    player_mode = None
+                    difficulty = None
+                    game_state = GameState.GAME_OVER
                 
                 player_group.update()
                 bullets_group.update()
@@ -254,13 +264,22 @@ def main():
                     
                     if (pygame.sprite.collide_rect(player_one, bullet) and not getattr(bullet, 'hit_player_one', False)):
                         player_one_hits += 1
+                        player_one_lives -= 1
                         bullet.hit_player_one = True
                         print(f'Player One Hits: {player_one_hits}')
+                        print(f'Player One Lives: {player_one_lives}')
                     
                     elif (pygame.sprite.collide_rect(player_two, bullet) and not getattr(bullet, 'hit_player_two', False)):
                         player_two_hits += 1
+                        player_two_lives -= 1
                         bullet.hit_player_two = True
                         print(f'Player Two Hits: {player_two_hits}')
+                        print(f'Player Two Lives: {player_two_lives}')
+                        
+                if player_one_lives == 0 or player_two_lives == 0:
+                    player_mode = None
+                    difficulty = None
+                    game_state = GameState.GAME_OVER
                     
                 player_group.update()
                 bullets_group.update()
@@ -285,11 +304,7 @@ def main():
             for ui_element in game_over_screen.ui_elements:
                 action = ui_element.update(mouse_pos, mouse_up)
                 if action is not None:
-                    if action == PlayerMode.ONE_PLAYER:
-                        player_mode = PlayerMode.ONE_PLAYER
-                    elif action == PlayerMode.TWO_PLAYER:
-                        player_mode = PlayerMode.TWO_PLAYER
-                    elif action == GameState.MAIN_MENU:
+                    if action == GameState.MAIN_MENU:
                         game_state = GameState.MAIN_MENU
                     elif action == GameState.QUIT:
                         game_state = GameState.QUIT
