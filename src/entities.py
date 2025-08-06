@@ -49,14 +49,38 @@ class Entity:
 class Player(Entity):
     def __init__(self, game, pos, size):
         super().__init__(game, "player", pos, size)
+        
+        self.overlay_action = ''
 
         self.set_action("idle")
+        self.set_overlay_action("idle")
+        
+    def set_overlay_action(self, overlay_action):
+        if overlay_action != self.overlay_action:
+            self.overlay_action = overlay_action
+            self.overlay_animation = self.game.assets[self.type + '/' + self.overlay_action].copy()
+        
         
     def update(self, movement=(0,0)):
         super().update(movement)
+        self.overlay_animation.update()
         
     def render(self, surface):
         
+        if self.overlay_action != "idle":
+            original_animation = pygame.transform.flip(surface=self.animation.img(), flip_x=self.flip, flip_y=False)
+            overlay_animation = pygame.transform.flip(surface=self.overlay_animation.img(), flip_x=self.flip, flip_y=False)
+            
+            surface.blit(
+            pygame.transform.scale(surface=original_animation, size=(self.size[0] * 3, self.size[1] * 3)), 
+            (self.pos[0], self.pos[1])
+        )
+            surface.blit(
+            pygame.transform.scale(surface=overlay_animation, size=(self.size[0] * 3, self.size[1] * 3)), 
+            (self.pos[0], self.pos[1])
+        )
+            
+            
         animated_image = pygame.transform.flip(surface=self.animation.img(), flip_x=self.flip, flip_y=False)
         
         surface.blit(

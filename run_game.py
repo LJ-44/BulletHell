@@ -23,6 +23,7 @@ class BulletHell:
             "bullet_bottom": load_image(path="entities/bullets/bullet_bottom.png"),
             "player/idle": Animation(images=load_images(path="entities/player/idle"), image_duration=1, loop=False),
             "player/slash": Animation(images=load_images(path="entities/player/slash"), image_duration=2, loop=False),
+            "player/slash_overlay": Animation(images=load_images(path="entities/player/slash_overlay"), image_duration=2, loop=False),
             "player/walk": Animation(images=load_images(path="entities/player/walk"), image_duration=5, loop=True)
         }
         # movement bools: [left, right, up, down] 
@@ -45,9 +46,9 @@ class BulletHell:
             for event in events:
                 if event.type == pygame.QUIT:
                     self.running = False
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if self.player.action != "slash" or self.player.animation.done:
-                            self.player.set_action("slash")
+                # if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                #     if self.player.action != "slash" or self.player.animation.done:
+                #             self.player.set_action("slash")
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_w:
                         self.player_movement[2] = True
@@ -57,9 +58,9 @@ class BulletHell:
                         self.player_movement[3] = True
                     if event.key == pygame.K_d:
                         self.player_movement[1] = True
-                    # if event.key == pygame.K_f:
-                    #     if self.player.action != "slash" or self.player.animation.done:
-                    #         self.player.set_action("slash")
+                    if event.key == pygame.K_f:
+                        if self.player.action == "walk":
+                            self.player.set_overlay_action("slash_overlay")
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_w:
                         self.player_movement[2] = False
@@ -72,9 +73,6 @@ class BulletHell:
                         
             if not hasattr(self.player, 'animation') or self.player.animation.done or self.player.animation.loop:
                 if player_move_x != 0 or player_move_y != 0:
-                    length = (player_move_x ** 2 + player_move_y ** 2) ** 0.5
-                    player_move_x /= length
-                    player_move_y /= length
                     self.player.set_action("walk")
                 else:
                     self.player.set_action("idle")
